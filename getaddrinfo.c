@@ -105,6 +105,7 @@ int main(int argc, char **argv)
     struct addrinfo hints;
     struct addrinfo *result, *rp;
 
+    //这些设置等于hints为NULL时的设置
     /* Obtain address(es) matching host/port. */
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_UNSPEC; /* Allow IPv4 or IPv6 */
@@ -112,7 +113,8 @@ int main(int argc, char **argv)
     hints.ai_flags = 0;
     hints.ai_protocol = IPPROTO_IP; /* Any protocol */
 
-    int s = getaddrinfo("ubuntu", NULL, &hints, &result);
+    //int s = getaddrinfo("ubuntu", "ssh", &hints, &result);
+    int s = getaddrinfo("192.168.206.132", NULL, NULL, &result);
     if (s != 0)
     {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(s));
@@ -139,7 +141,7 @@ int main(int argc, char **argv)
         {
             printf("ipv6\n");
         }
-        printf("\naf_net %d\n",rp->ai_addr->sa_family);
+        printf("\naf_net %d\n", rp->ai_addr->sa_family);
         struct sockaddr_in *addr = (struct sockaddr_in *)rp->ai_addr;
         printf("address: %s\n", inet_ntoa(addr->sin_addr));
         printf("port: %d\n", ntohs(addr->sin_port));

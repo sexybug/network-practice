@@ -19,6 +19,7 @@
         "stdlib.h": "c",
         "error.h": "c",
         "errno.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "inet.h": "c"
     }
 }
