@@ -1,3 +1,4 @@
+/* 接收所有数据包 */
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -11,7 +12,7 @@
 int main()
 {
     /**
-     * @brief
+     * @brief 创建套接字
      * ETH_P_IP - 只接收目的mac是本机的IP类型数据帧
      * ETH_P_ARP - 只接收目的mac是本机的ARP类型数据帧
      * ETH_P_RARP - 只接收目的mac是本机的RARP类型数据帧
@@ -28,25 +29,24 @@ int main()
         return -1;
     }
 
-    struct sockaddr_in recv_addr;
-    memset(&recv_addr, 0, sizeof(struct sockaddr_in));
-    recv_addr.sin_family = AF_INET;
-    recv_addr.sin_addr.s_addr = inet_addr("192.168.1.2");
-
     unsigned char buffer[BUFFER_SIZE];
     int i = 1;
     while (true)
     {
-        printf("i:%d\n", i);
-        int n = recvfrom(recv_socket, buffer, BUFFER_SIZE, 0, (struct sockaddr *)&recv_addr, sizeof(struct sockaddr_in));
+        printf("i: %d\n", i);
+
+        /* AF_PACKET套接字,recvfrom不可指定源ip,需置为NULL */
+        /* recvfrom默认是阻塞式的，未获取到数据将一直等待，直到收到数据。可通过setsockopt修改成非阻塞式。 */
+        int n = recvfrom(recv_socket, buffer, BUFFER_SIZE, 0, NULL, NULL);
         struct iphdr *ip_header = (struct iphdr *)buffer;
-        printf("packet size:%d\n", n);
         struct in_addr ip_src, ip_dst; /* source and dest address */
         ip_src.s_addr = ip_header->saddr;
         ip_dst.s_addr = ip_header->daddr;
-        printf("source ip:%s\n", inet_ntoa(ip_src));
-        printf("destination ip:%s\n", inet_ntoa(ip_dst));
-        printf("protocal:%d\n", ip_header->protocol);
+
+        printf("packet size: %d\n", n);
+        printf("source ip: %s\n", inet_ntoa(ip_src));
+        printf("destination ip: %s\n", inet_ntoa(ip_dst));
+        printf("protocol: %d\n", ip_header->protocol);
         printf("\n");
         ++i;
     }

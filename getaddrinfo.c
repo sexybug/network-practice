@@ -113,7 +113,7 @@ int main(int argc, char **argv)
     hints.ai_flags = 0;
     hints.ai_protocol = IPPROTO_IP; /* Any protocol */
 
-    //int s = getaddrinfo("ubuntu", "ssh", &hints, &result);
+    // int s = getaddrinfo("ubuntu", "ssh", &hints, &result);
     int s = getaddrinfo("192.168.206.132", NULL, NULL, &result);
     if (s != 0)
     {

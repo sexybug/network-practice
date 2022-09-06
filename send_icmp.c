@@ -1,3 +1,4 @@
+/* 发送ICMP数据包 */
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -9,7 +10,7 @@
 #include <netinet/ether.h>
 #include <netinet/ip.h> /* superset of previous */
 #include <netinet/ip_icmp.h>
-#include <arpa/inet.h>  /* inet_addr,inet_aton */
+#include <arpa/inet.h> /* inet_addr,inet_aton */
 #include <netdb.h>
 
 /* 网卡接口默认MTU=1500 */
@@ -17,8 +18,12 @@ const int BUFFER_SIZE = 1500;
 
 int main()
 {
-    char *src_ip = "192.168.206.131";
-    char *dst_ip = "192.168.206.132";
+    const char *src_ip = "192.168.1.8";
+    const char *dst_ip = "192.168.1.7";
+    /*
+    const char *src_ip = "192.168.206.131";
+    const char *dst_ip = "192.168.206.132";
+    */
 
     /**
      * @brief 创建IPv4套接字
@@ -56,8 +61,6 @@ int main()
         icmp.type = ICMP_ECHOREPLY;
         icmp.code = 0;
         icmp.checksum = 0;
-        icmp.id = htonl(i);
-
 
         memcpy(&buffer, &ip, sizeof(struct iphdr));
         /* 设置数据部分 */
@@ -67,8 +70,10 @@ int main()
         }
 
         struct sockaddr_in send_addr;
+        memset(&send_addr, 0, sizeof(struct sockaddr_in));
         send_addr.sin_family = AF_INET;
         send_addr.sin_addr.s_addr = inet_addr(dst_ip);
+
         int n = sendto(send_socket, buffer, BUFFER_SIZE, 0, (struct sockaddr *)&send_addr, sizeof(struct sockaddr_in));
         if (n < 0)
         {
@@ -78,6 +83,6 @@ int main()
         printf("send %d bytes\n", n);
         ++i;
         /* 睡眠一秒 */
-        // sleep(1);
+        sleep(1);
     }
 }

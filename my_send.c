@@ -1,3 +1,4 @@
+/* 发送IP数据包 */
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -6,37 +7,20 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <netinet/ether.h>
 #include <netinet/ip.h> /* superset of previous */
 #include <arpa/inet.h>  /* inet_addr,inet_aton */
-#include <netdb.h>
 
 /* 网卡接口默认MTU=1500 */
 const int BUFFER_SIZE = 1500;
 
-/**
- * @brief 把主机名、域名解析成ip
- *
- * @param host 主机名
- * @param ip_addr 包含了ip的结构体
- * @return int
- */
-int getSockAddr(const char *host, struct sockaddr *ip_addr)
-{
-    struct addrinfo *result;
-    int s = getaddrinfo(host, NULL, NULL, &result);
-    if (s != 0)
-    {
-        fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(s));
-        return -1;
-    }
-    memcpy(ip_addr, result->ai_addr, sizeof(struct sockaddr));
-    freeaddrinfo(result); /* No longer needed */
-    return 0;
-}
-
 int main()
 {
+    /*
+    const char *src_ip = "192.168.1.8";
+    const char *dst_ip = "192.168.1.7";
+    */
+    const char *src_ip = "192.168.206.131";
+    const char *dst_ip = "192.168.206.132";
     /**
      * @brief 创建IPv4套接字
      * IPPROTO_RAW：可发送任意类型数据包。并设置了IP_HDRINCL，因此需手动创建IP头。
@@ -45,16 +29,8 @@ int main()
     if (send_socket == -1)
     {
         perror("socket");
-        fprintf(stderr, "send socket error: %s\n", strerror(errno));
         return -1;
     }
-
-    /* 解析目的主机名 */
-    char *host = "ubuntu2";
-    struct sockaddr ip_addr;
-    getSockAddr(host, &ip_addr);
-    struct sockaddr_in *daddr = (struct sockaddr_in *)(&ip_addr);
-    printf("dst ip: %s\n", inet_ntoa(daddr->sin_addr));
 
     unsigned char buffer[BUFFER_SIZE];
     int i = 1;
@@ -63,7 +39,7 @@ int main()
         printf("i:%d\n", i);
         /* <netinet/ip.h> 中ip头结构体 */
         struct iphdr ip;
-        bzero(&ip, sizeof(struct iphdr));
+        memset(&ip, 0, sizeof(ip));
         /* <netinet/ip.h> 中定义的IPv4版本号：4 */
         ip.version = IPVERSION;
         /* ip头长度，单位：4字节。一般为5*4=20字节 */
@@ -84,10 +60,10 @@ int main()
         /* ip.check */
         /* 源ip。如果不设置，内核将把它设置为外出接口的主IP地址 */
         /* 如果此处源ip与网卡接口ip不一样，也可发送出去，但将无法收到响应（因为响应被发送到错误的ip） */
-        ip.saddr = inet_addr("192.168.1.2");
+        ip.saddr = inet_addr(src_ip);
         /* 目的ip。 */
         // ip.daddr = daddr->sin_addr.s_addr;
-        ip.daddr = inet_addr("192.168.1.3");
+        ip.daddr = inet_addr(dst_ip);
 
         memcpy(&buffer, &ip, sizeof(struct iphdr));
         /* 设置数据部分 */
@@ -96,13 +72,16 @@ int main()
             buffer[k] = 'a';
         }
 
+        struct sockaddr_in send_addr;
+        memset(&send_addr, 0, sizeof(struct sockaddr_in));
+        send_addr.sin_family = AF_INET;
+        send_addr.sin_addr.s_addr = inet_addr(dst_ip);
         /* 发送 */
         /* 如果此处目的ip与包的目的ip不一样，也可发送出去，且目的ip仍为包的目的ip。此处的目的ip没有作用，但不可缺少 */
-        daddr->sin_addr.s_addr = inet_addr("192.168.1.4");
-        int n = sendto(send_socket, buffer, BUFFER_SIZE, 0, &ip_addr, sizeof(struct sockaddr));
+        int n = sendto(send_socket, buffer, BUFFER_SIZE, 0, (struct sockaddr *)&send_addr, sizeof(struct sockaddr_in));
         if (n < 0)
         {
-            perror("sendto");
+            fprintf(stderr, "sendto error: %s\n", strerror(errno));
             return -1;
         }
         printf("send %d bytes\n", n);
