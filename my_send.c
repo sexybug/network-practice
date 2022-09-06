@@ -16,10 +16,10 @@ const int BUFFER_SIZE = 1500;
 
 /**
  * @brief 把主机名、域名解析成ip
- * 
+ *
  * @param host 主机名
  * @param ip_addr 包含了ip的结构体
- * @return int 
+ * @return int
  */
 int getSockAddr(const char *host, struct sockaddr *ip_addr)
 {
@@ -86,21 +86,21 @@ int main()
         /* 如果此处源ip与网卡接口ip不一样，也可发送出去，但将无法收到响应（因为响应被发送到错误的ip） */
         ip.saddr = inet_addr("192.168.1.2");
         /* 目的ip。 */
-        //ip.daddr = daddr->sin_addr.s_addr;
+        // ip.daddr = daddr->sin_addr.s_addr;
         ip.daddr = inet_addr("192.168.1.3");
 
         memcpy(&buffer, &ip, sizeof(struct iphdr));
         /* 设置数据部分 */
-        for(int k=20;k<BUFFER_SIZE;++k) 
+        for (int k = 20; k < BUFFER_SIZE; ++k)
         {
-            buffer[k] ='a';
+            buffer[k] = 'a';
         }
 
         /* 发送 */
         /* 如果此处目的ip与包的目的ip不一样，也可发送出去，且目的ip仍为包的目的ip。此处的目的ip没有作用，但不可缺少 */
-        daddr->sin_addr.s_addr=inet_addr("192.168.1.4");
+        daddr->sin_addr.s_addr = inet_addr("192.168.1.4");
         int n = sendto(send_socket, buffer, BUFFER_SIZE, 0, &ip_addr, sizeof(struct sockaddr));
-        if(n<0)
+        if (n < 0)
         {
             perror("sendto");
             return -1;
@@ -108,6 +108,6 @@ int main()
         printf("send %d bytes\n", n);
         ++i;
         /* 睡眠一秒 */
-        //sleep(1);
+        sleep(1);
     }
 }
