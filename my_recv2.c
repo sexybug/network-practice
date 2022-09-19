@@ -12,7 +12,7 @@
 #define BUFFER_SIZE 65535
 int main()
 {
-    const char *expect_src_ip = "192.168.1.8";
+    const char *expect_src_ip = "192.168.206.131";
 
     /* 只要是IPv4数据包（AF_INET），并且IP头中协议字段是ICMP，则都能接收到 */
     int recv_socket = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
