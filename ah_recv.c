@@ -1,20 +1,48 @@
-/* 接收来源于特定ip的、特定协议的数据包 */
+/* 接收AH数据包 */
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <errno.h>
 #include <string.h>
+#include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netinet/ip.h> /* superset of previous */
 #include <arpa/inet.h>  /* inet_addr,inet_aton */
+#include <linux/types.h>
 
-#define BUFFER_SIZE 65535
+struct ip_auth_hdr {
+    /* 下一个头 */
+	__u8  nexthdr;
+
+    /* 载荷长度 */
+	__u8  hdrlen;		/* This one is measured in 32 bit units! */
+
+    /* 保留 */
+	__be16 reserved;
+
+    /* 安全参数索引 */
+	__be32 spi;
+
+    /* 序列号 */
+	__be32 seq_no;		/* Sequence number */
+    
+    /*鉴别数据（变长的） */
+    /* modified by sexybug to be compatible with c99 */
+	__u8  auth_data[];	/* Variable len but >=4. Mind the 64 bit alignment! */
+};
+
+/* 网卡接口默认MTU=1500 */
+const int BUFFER_SIZE = 1500;
+/* 无可选字段的IP头长度为20byte */
+const int IP_HDR_LEN = 20;
+
 int main()
 {
     const char *expect_src_ip = "192.168.206.131";
 
-    /* 只要是IPv4数据包（AF_INET），并且IP头中协议字段是ICMP，则都能接收到 */
-    int recv_socket = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
+    /* 接收协议字段为AH的IP数据包 */
+    int recv_socket = socket(AF_INET, SOCK_RAW, IPPROTO_AH);
     if (recv_socket == -1)
     {
         perror("socket");

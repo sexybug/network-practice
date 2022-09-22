@@ -15,6 +15,8 @@
 
 /* 网卡接口默认MTU=1500 */
 const int BUFFER_SIZE = 1500;
+/* 无可选字段的IP头长度为20byte */
+const int IP_HDR_LEN = 20;
 
 int main()
 {
@@ -45,7 +47,7 @@ int main()
         struct iphdr ip;
         memset(&ip, 0, sizeof(struct iphdr));
         ip.version = IPVERSION;
-        ip.ihl = 5;
+        ip.ihl = IP_HDR_LEN/4;
         ip.tos = 0x00;
         ip.tot_len = BUFFER_SIZE;
         ip.id = htonl(i % 65535);
@@ -62,9 +64,9 @@ int main()
         icmp.code = 0;
         icmp.checksum = 0;
 
-        memcpy(&buffer, &ip, sizeof(struct iphdr));
+        memcpy(buffer, &ip, IP_HDR_LEN);
         /* 设置数据部分 */
-        for (int k = 20; k < BUFFER_SIZE; ++k)
+        for (int k = IP_HDR_LEN; k < BUFFER_SIZE; ++k)
         {
             buffer[k] = 'a';
         }
