@@ -26,3 +26,17 @@ struct ip_auth_hdr
 const int BUFFER_SIZE = 1500;
 /* 无可选字段的IP头长度为20byte */
 const int IP_HDR_LEN = 20;
+
+void memory_dump(void *ptr, int len)
+{
+
+    for (int i = 0; i < len; ++i)
+    {
+        if (i % 8 == 0 && i != 0)
+            printf(" ");
+        if (i % 16 == 0 && i != 0)
+            printf("\n");
+        printf("%02x ", *((uint8_t *)ptr + i));
+    }
+    printf("\n");
+}
