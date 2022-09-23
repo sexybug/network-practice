@@ -11,18 +11,6 @@
 #include <arpa/inet.h>  /* inet_addr,inet_aton */
 #include "ah.h"
 
-void memory_dump(void *ptr, int len) {
-    
-    for (int i = 0; i < len; ++i) {
-        if (i % 8 == 0 && i != 0)
-            printf(" ");
-        if (i % 16 == 0 && i != 0)
-            printf("\n");
-        printf("%02x ", *((uint8_t *)ptr + i));
-    }
-    printf("\n");
-}
-
 int main()
 {
     const char *expect_src_ip = "192.168.206.131";
@@ -58,22 +46,21 @@ int main()
         ip_src.s_addr = ip_header->saddr;
         ip_dst.s_addr = ip_header->daddr;
 
-        printf("ipv4 header:\n");
+        printf("ipv4 header\n");
         printf("packet size: %d\n", n);
         printf("source ip: %s\n", inet_ntoa(ip_src));
         printf("destination ip: %s\n", inet_ntoa(ip_dst));
         printf("protocol: %d\n", ip_header->protocol);
         printf("\n");
 
-        struct ip_auth_hdr *ah_header=(struct ip_auth_hdr *)(buffer+ IP_HDR_LEN);
-        printf("ah header:\n");
+        struct ip_auth_hdr *ah_header = (struct ip_auth_hdr *)(buffer + IP_HDR_LEN);
+        printf("ah header\n");
         printf("Next header: %d\n", ah_header->nexthdr);
-        printf("Length: %d\n", (ah_header->hdrlen+2)*4);
-        printf("AH SPI:\n");
-        memory_dump(ah_header->spi,4);
+        printf("Length: %d\n", (ah_header->hdrlen + 2) * 4);
+        printf("AH SPI: 0x%08x\n", ntohl(ah_header->spi));
         printf("AH Sequence: %d\n", ntohl(ah_header->seq_no));
         printf("AH ICV:\n");
-        memory_dump(ah_header->auth_data,32);
+        memory_dump(ah_header->auth_data, 32);
         printf("\n");
 
         ++i;

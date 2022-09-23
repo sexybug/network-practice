@@ -66,7 +66,7 @@ int main()
         int auth_data_len = 32;
         int auth_hdr_len = sizeof(struct ip_auth_hdr) + auth_data_len;
         ah = (struct ip_auth_hdr *)malloc(auth_hdr_len);
-        if(ah == NULL)
+        if (ah == NULL)
         {
             return -1;
         }
@@ -101,7 +101,7 @@ int main()
             return -1;
         }
         printf("send %d bytes\n", n);
-        
+
         free(ah);
         ++i;
         /* 睡眠一秒 */
