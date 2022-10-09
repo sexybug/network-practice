@@ -17,10 +17,6 @@ const int IP_HDR_LEN = 20;
 
 int main()
 {
-    /*
-    const char *src_ip = "192.168.1.8";
-    const char *dst_ip = "192.168.1.7";
-    */
     const char *src_ip = "192.168.206.131";
     const char *dst_ip = "192.168.206.132";
     /**

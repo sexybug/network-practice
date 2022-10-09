@@ -10,3 +10,5 @@
 #include <arpa/inet.h>  /* inet_addr,inet_aton */
 
 #include <linux/ip.h>
+
+#include <stdint.h>
