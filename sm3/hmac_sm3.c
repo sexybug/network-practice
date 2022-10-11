@@ -34,7 +34,7 @@ int sm3_hmac_update(sm3_hmac_ctx_t *ctx, const unsigned char *data, size_t data_
     return 0;
 }
 
-int sm3_hmac_final(sm3_hmac_ctx_t *ctx, unsigned char mac[SM3_HMAC_SIZE])
+int sm3_hmac_final(sm3_hmac_ctx_t *ctx, unsigned char *mac)
 {
     int i;
     for (i = 0; i < SM3_BLOCK_SIZE; i++)
@@ -52,12 +52,11 @@ int sm3_hmac_final(sm3_hmac_ctx_t *ctx, unsigned char mac[SM3_HMAC_SIZE])
 
 int sm3_hmac(const unsigned char *data, int data_len,
              const unsigned char *key, int key_len,
-             unsigned char mac[SM3_HMAC_SIZE])
+             unsigned char *mac)
 {
     sm3_hmac_ctx_t ctx;
     sm3_hmac_init(&ctx, key, key_len);
     sm3_hmac_update(&ctx, data, data_len);
     sm3_hmac_final(&ctx, mac);
-    memset(&ctx, 0, sizeof(ctx));
     return 0;
 }

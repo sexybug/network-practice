@@ -7,7 +7,7 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <netinet/ip.h> /* superset of previous */
+#include <linux/ip.h> /* superset of previous */
 #include <arpa/inet.h>  /* inet_addr,inet_aton */
 
 /* 网卡接口默认MTU=1500 */
@@ -37,15 +37,15 @@ int main()
         printf("i:%d\n", i);
         /* <netinet/ip.h> 中ip头结构体 */
         struct iphdr ip;
-        memset(&ip, 0, sizeof(struct ip));
+        memset(&ip, 0, sizeof(struct iphdr));
         /* <netinet/ip.h> 中定义的IPv4版本号：4 */
         ip.version = IPVERSION;
         /* ip头长度，单位：4字节。一般为5*4=20字节 */
         ip.ihl = IP_HDR_LEN/4;
         /* 服务类型。<netinet/ip.h>中定义了服务类型宏，为0表示一般类型 */
         ip.tos = 0x00;
-        /* ip数据包总长度，最大为IP_MAXPACKET = 65535 */
-        ip.tot_len = BUFFER_SIZE;
+        /* ip数据包总长度，以字节为单位，最大为IP_MAXPACKET = 65535 */
+        ip.tot_len = htons(BUFFER_SIZE);
         /* 标识。如果IP标识为0，内核将设置该字段 */
         ip.id = htonl(i % 65535);
         /* IP_HDRINCL情况下，IP数据包不会自动分片，超过网卡接口MTU将被丢弃。这里表示不分片。 */
@@ -87,4 +87,5 @@ int main()
         /* 睡眠一秒 */
         sleep(1);
     }
+    return 0;
 }

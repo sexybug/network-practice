@@ -87,4 +87,5 @@ int main()
         /* 睡眠一秒 */
         sleep(1);
     }
+    return 0;
 }

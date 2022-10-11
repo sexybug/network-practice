@@ -16,15 +16,14 @@ extern "C"
     {
         sm3_ctx_t sm3_ctx;
         unsigned char key[64];
-
     } sm3_hmac_ctx_t;
 
     int sm3_hmac_init(sm3_hmac_ctx_t *ctx, const unsigned char *key, size_t key_len);
     int sm3_hmac_update(sm3_hmac_ctx_t *ctx, const unsigned char *data, size_t data_len);
-    int sm3_hmac_final(sm3_hmac_ctx_t *ctx, unsigned char mac[SM3_HMAC_SIZE]);
+    int sm3_hmac_final(sm3_hmac_ctx_t *ctx, unsigned char *mac);
     int sm3_hmac(const unsigned char *data, int data_len,
                  const unsigned char *key, int key_len,
-                 unsigned char mac[SM3_HMAC_SIZE]);
+                 unsigned char *mac);
 
 #ifdef __cplusplus
 }

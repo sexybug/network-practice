@@ -5,8 +5,8 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <netinet/ip.h> /* superset of previous */
 #include <arpa/inet.h>  /* inet_addr,inet_aton */
+#include "ip_packet.h"
 
 #define BUFFER_SIZE 65535
 int main()
@@ -39,15 +39,12 @@ int main()
             perror("recvfrom");
         }
 
-        struct iphdr *ip_header = (struct iphdr *)buffer;
-        struct in_addr ip_src, ip_dst; /* source and dest address */
-        ip_src.s_addr = ip_header->saddr;
-        ip_dst.s_addr = ip_header->daddr;
+        ip_packet_t *ip=ip_packet_create_from_bytes(buffer,n);
 
         printf("packet size: %d\n", n);
-        printf("source ip: %s\n", inet_ntoa(ip_src));
-        printf("destination ip: %s\n", inet_ntoa(ip_dst));
-        printf("protocol: %d\n", ip_header->protocol);
+        printf("source ip: %s\n", ip_packet_get_saddr(ip));
+        printf("destination ip: %s\n", ip_packet_get_daddr(ip));
+        printf("protocol: %d\n", ip_packet_get_protocol(ip));
         printf("\n");
         ++i;
     }

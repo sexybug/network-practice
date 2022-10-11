@@ -100,7 +100,7 @@ int sm3_final(sm3_ctx_t *ctx, unsigned char *digest)
 #define GG0(x, y, z) ((x) ^ (y) ^ (z))
 #define GG1(x, y, z) (((x) & (y)) | ((~(x)) & (z)))
 
-int sm3_compress(uint32_t digest[8], const unsigned char block[64])
+int sm3_compress(uint32_t digest[8], const unsigned char *block)
 {
 	int j;
 	uint32_t W[68], W1[64];
@@ -177,14 +177,12 @@ int sm3_compress(uint32_t digest[8], const unsigned char block[64])
 	return 0;
 }
 
-int sm3(const unsigned char *msg, size_t msglen, unsigned char dgst[SM3_DIGEST_LENGTH])
+int sm3(const unsigned char *msg, size_t msglen, unsigned char *dgst)
 {
 	sm3_ctx_t ctx;
 
 	sm3_init(&ctx);
 	sm3_update(&ctx, msg, msglen);
 	sm3_final(&ctx, dgst);
-
-	memset(&ctx, 0, sizeof(sm3_ctx_t));
 	return 0;
 }

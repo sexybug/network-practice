@@ -48,7 +48,7 @@ int main()
         ip.frag_off = htons(0x0000);
         /* <netinet/ip.h> 中定义了各种TTL，这里使用默认TTL */
         ip.ttl = IPDEFTTL;
-        /* <netinet/in.h> 中定义了网络层协议号，此处为ICMP协议 */
+        /* <netinet/in.h> 中定义了网络层协议号，此处为AH协议 */
         ip.protocol = IPPROTO_AH;
         /* 校验和由内核计算并添加 */
         /* ip.check */
@@ -77,7 +77,7 @@ int main()
         ah->hdrlen = auth_hdr_len / 4 - 2;
         /* ah->spi */
         /* 序列号，从0开始 */
-        ah->seq_no = 0;
+        ah->seq_no = htonl(1);
         /* 鉴别数据 */
         strcpy(ah->auth_data, "authdat1authdat2authdat3authdat4");
         memcpy(buffer + IP_HDR_LEN, ah, auth_hdr_len);
@@ -107,4 +107,5 @@ int main()
         /* 睡眠一秒 */
         sleep(1);
     }
+    return 0;
 }

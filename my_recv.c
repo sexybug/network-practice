@@ -50,4 +50,5 @@ int main()
         printf("\n");
         ++i;
     }
+    return 0;
 }

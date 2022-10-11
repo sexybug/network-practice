@@ -26,4 +26,5 @@ int main()
 
     struct icmphdr icmp;
     sizeof(struct icmphdr);
+    return 0;
 }
