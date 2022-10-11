@@ -1,7 +1,9 @@
+#include "ip_packet.h"
+
 #include <stdlib.h>
 #include <string.h>
 #include <arpa/inet.h>
-#include "ip_packet.h"
+
 
 static iphdr *ip_packet_create_iph()
 {

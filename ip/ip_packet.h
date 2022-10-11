@@ -3,6 +3,7 @@
 
 #include <linux/ip.h>
 #include <stdint.h>
+#include <stddef.h>
 
 typedef struct iphdr iphdr;
 typedef struct ip_packet_t ip_packet_t;
