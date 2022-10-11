@@ -1,0 +1,23 @@
+{
+    "files.associations": {
+        "ip.h": "c",
+        "string.h": "c",
+        "inet.h": "c",
+        "in.h": "c",
+        "send_ah.h": "c",
+        "ether.h": "c",
+        "if_ether.h": "c",
+        "ethernet.h": "c",
+        "ip_icmp.h": "c",
+        "ah.h": "c",
+        "stdint.h": "c",
+        "stdint-gcc.h": "c",
+        "types.h": "c",
+        "evp.h": "c",
+        "features.h": "c",
+        "ip_packet.h": "c",
+        "stdlib.h": "c",
+        "stdio.h": "c",
+        "errno.h": "c"
+    }
+}

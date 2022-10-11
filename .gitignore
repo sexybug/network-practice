@@ -3,3 +3,5 @@
 !*.c
 !sm3
 !ip
+!\.vscode
+!\.vscode/*.json
