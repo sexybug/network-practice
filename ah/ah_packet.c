@@ -6,11 +6,13 @@
 
 ah_packet_t *ah_packet_create(size_t auth_data_len)
 {
+    size_t auth_hdr_len=sizeof(ip_auth_hdr) + auth_data_len;
     ah_packet_t *ah_packet = (ah_packet_t *)malloc(sizeof(ah_packet_t));
-    ah_packet->auth_hdr = (ip_auth_hdr *)malloc(sizeof(ip_auth_hdr) + auth_data_len);
+    ah_packet->auth_hdr = (ip_auth_hdr *)malloc(auth_hdr_len);
+    memset(ah_packet->auth_hdr, 0, auth_hdr_len);
     *(ah_packet->auth_hdr) = (ip_auth_hdr){
         .nexthdr = 0x00,
-        .hdrlen = (sizeof(ip_auth_hdr) + auth_data_len) / 4 - 2,
+        .hdrlen = auth_hdr_len / 4 - 2,
         .reserved = 0,
         .spi = 0,
         .seq_no = 0};

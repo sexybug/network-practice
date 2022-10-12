@@ -34,6 +34,9 @@ void ip_packet_get_data(ip_packet_t *ip_packet, uint8_t *data, size_t *data_len)
 /* 获取整个数据包（包括IP头部和数据部分）所有字节的数据 */
 void ip_packet_get_packet_bytes(ip_packet_t *ip_packet, uint8_t *packet_bytes, size_t *total_len);
 
+/* 只clone IP头，数据部分直接指针指向 */
+ip_packet_t *ip_packet_clone(ip_packet_t *ip_packet);
+
 void ip_packet_destory(ip_packet_t *ip_packet);
 
 #endif /* IP_PACKET_H */

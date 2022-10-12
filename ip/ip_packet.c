@@ -90,8 +90,8 @@ char *ip_packet_get_daddr(ip_packet_t *ip_packet)
 
 void ip_packet_get_data(ip_packet_t *ip_packet, uint8_t *data, size_t *data_len)
 {
-    data=ip_packet->data;
-    *data_len=ip_packet->data_len;
+    data = ip_packet->data;
+    *data_len = ip_packet->data_len;
 }
 
 void ip_packet_get_packet_bytes(ip_packet_t *ip_packet, uint8_t *packet_bytes, size_t *total_len)
@@ -100,6 +100,17 @@ void ip_packet_get_packet_bytes(ip_packet_t *ip_packet, uint8_t *packet_bytes, s
     memcpy(packet_bytes, ip_packet->iph, iph_len);
     memcpy(packet_bytes + iph_len, ip_packet->data, ip_packet->data_len);
     *total_len = iph_len + ip_packet->data_len;
+}
+
+ip_packet_t *ip_packet_clone(ip_packet_t *ip_packet)
+{
+    ip_packet_t *clone = (ip_packet_t *)malloc(sizeof(ip_packet_t));
+    clone->iph = (iphdr *)malloc(ip_packet_get_iph_len(ip_packet));
+    clone->data=(uint8_t *)malloc(ip_packet->data_len);
+    memcpy(clone->iph, ip_packet->iph, ip_packet_get_iph_len(ip_packet));
+    clone->data=ip_packet->data;
+    clone->data_len = ip_packet->data_len;
+    return clone;
 }
 
 void ip_packet_destory(ip_packet_t *ip_packet)
