@@ -25,9 +25,9 @@ int main(int argc, char **argv)
         ip_packet_set_protocol(ip_packet, IPPROTO_ICMP);
         ip_packet_set_data(ip_packet, "hello", 500);
 
-        unsigned char buffer[BUFFER_SIZE];
-        size_t total_len=0;
-        ip_packet_get_packet_bytes(ip_packet,buffer,&total_len);
+        size_t total_len=ip_packet_get_tot_len(ip_packet);
+        unsigned char buffer[total_len];
+        ip_packet_get_packet_bytes(ip_packet,buffer);
 
         /**
          * @brief 创建IPv4套接字

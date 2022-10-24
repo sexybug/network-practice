@@ -31,7 +31,10 @@ ah_packet_t *ah_packet_create_from_bytes(uint8_t *packet_bytes, size_t total_len
 
     ah_packet_t *ah_packet = (ah_packet_t *)malloc(sizeof(ah_packet_t));
     ah_packet->auth_hdr = (ip_auth_hdr *)malloc(auth_hdr_len);
-    *(ah_packet->auth_hdr) = *(auth_hdr);
+    memcpy(ah_packet->auth_hdr, auth_hdr,auth_hdr_len);
+    //不能使用直接赋值的方式，auth_data会赋值失败。
+    //必须用memcpy给结构体赋值。下面的方法会导致结构体中的变长数组赋值失败。
+    //*(ah_packet->auth_hdr) = *(auth_hdr);
     ah_packet->auth_data_len = auth_data_len;
     ah_packet->data = packet_bytes + auth_hdr_len;
     ah_packet->data_len = total_len - auth_hdr_len;

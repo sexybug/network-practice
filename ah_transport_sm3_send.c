@@ -30,21 +30,21 @@ void memory_dump(void *ptr, int len)
 
 void ah_transport_sm3(ip_packet_t *ip_packet, uint8_t *key, int key_len, uint8_t *auth_data)
 {
-    ip_packet_t *clone=ip_packet_clone(ip_packet);
-    clone->iph->tos=0;
-    clone->iph->frag_off=0;
-    clone->iph->ttl=0;
-    clone->iph->check=0;
+    ip_packet_t *clone = ip_packet_clone(ip_packet);
+    clone->iph->tos = 0;
+    clone->iph->frag_off = 0;
+    clone->iph->ttl = 0;
+    clone->iph->check = 0;
 
     uint8_t buf[BUFFER_SIZE];
-    size_t len=0;
+    size_t len = 0;
     ip_packet_get_packet_bytes(clone, buf, &len);
 
-printf("clone:\n");
+    printf("clone:\n");
     memory_dump(buf, len);
 
-    sm3_hmac(buf, len,key,key_len,auth_data);
-printf("hmac-sm3:\n");
+    sm3_hmac(buf, len, key, key_len, auth_data);
+    printf("hmac-sm3:\n");
     memory_dump(auth_data, 32);
 }
 
@@ -59,6 +59,7 @@ int main(int argc, char **argv)
         ah_packet_t *ah_packet = ah_packet_create(32);
         ah_packet_set_nexthdr(ah_packet, IPPROTO_ICMP);
         ah_packet_set_seq_no(ah_packet, 0x0102);
+        //还需set_id
         ah_packet_set_spi(ah_packet, 0x0304);
         ah_packet_set_data(ah_packet, "abcd1234abcd1234abcd1234abcd1234", 32);
 
