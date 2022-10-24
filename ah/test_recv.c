@@ -8,7 +8,7 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <arpa/inet.h>  /* inet_addr,inet_aton */
+#include <arpa/inet.h> /* inet_addr,inet_aton */
 
 #define BUFFER_SIZE 65535
 
@@ -55,7 +55,7 @@ int main()
             perror("recvfrom");
         }
 
-        ip_packet_t *ip=ip_packet_create_from_bytes(buffer,n);
+        ip_packet_t *ip = ip_packet_create_from_bytes(buffer, n);
 
         printf("packet size: %d\n", n);
         printf("source ip: %s\n", ip_packet_get_saddr(ip));
@@ -63,21 +63,21 @@ int main()
         printf("protocol: %d\n", ip_packet_get_protocol(ip));
         printf("\n");
 
-        unsigned char ah_buf[BUFFER_SIZE];
-        size_t ah_len=0;
-        ip_packet_get_data(ip,ah_buf,&ah_len);
+        size_t ah_len = 0;
+        unsigned char ah_buf[ah_len];
+        ip_packet_get_data(ip, ah_buf);
 
-        ah_packet_t *ah_packet=ah_packet_create_from_bytes(ah_buf,ah_len);
+        ah_packet_t *ah_packet = ah_packet_create_from_bytes(ah_buf, ah_len);
         printf("ah header\n");
         printf("Next header: %d\n", ah_packet_get_nexthdr(ah_packet));
         printf("Length: %d\n", ah_packet_get_auth_hdr_len(ah_packet));
         printf("AH SPI: 0x%08x\n", ah_packet_get_spi(ah_packet));
         printf("AH Sequence: %d\n", ah_packet_get_spi(ah_packet));
         printf("AH ICV:\n");
-        unsigned char auth_data[BUFFER_SIZE];
-        size_t auth_data_len = 0;
-        ah_packet_get_auth_data(ah_packet,auth_data,&auth_data_len);
-        memory_dump(auth_data,auth_data_len);
+        size_t auth_data_len = ah_packet_get_auth_data_len(ah_packet);
+        unsigned char auth_data[auth_data_len];
+        ah_packet_get_auth_data(ah_packet, auth_data);
+        memory_dump(auth_data, auth_data_len);
         printf("\n");
 
         ++i;

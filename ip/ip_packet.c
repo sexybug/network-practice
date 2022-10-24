@@ -136,7 +136,7 @@ void ip_packet_get_data(ip_packet_t *ip_packet, uint8_t *data)
     memcpy(data, ip_packet->data, ip_packet->data_len);
 }
 
-uint16_t ip_packet_get_tot_len(ip_packet_t *ip_packet)
+uint16_t ip_packet_get_packet_len(ip_packet_t *ip_packet)
 {
     return ntohs(ip_packet->iph->tot_len);
 }

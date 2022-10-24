@@ -2,7 +2,6 @@
 #define IP_PACKET_H
 
 #include <stdint.h>
-#include <stddef.h>
 
 typedef struct ip_packet_t ip_packet_t;
 
@@ -38,7 +37,7 @@ uint16_t ip_packet_get_data_len(ip_packet_t *ip_packet);
 /* 获取数据部分 */
 void ip_packet_get_data(ip_packet_t *ip_packet, uint8_t *data);
 /* 获取整个IP数据包总长度 */
-uint16_t ip_packet_get_tot_len(ip_packet_t *ip_packet);
+uint16_t ip_packet_get_packet_len(ip_packet_t *ip_packet);
 /* 获取整个数据包（包括IP头部和数据部分）所有字节的数据 */
 void ip_packet_get_packet_bytes(ip_packet_t *ip_packet, uint8_t *packet_bytes);
 

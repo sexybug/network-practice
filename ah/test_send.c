@@ -8,7 +8,7 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <unistd.h>
-#include <arpa/inet.h> 
+#include <arpa/inet.h>
 
 /* 网卡接口默认MTU=1500 */
 const int BUFFER_SIZE = 1500;
@@ -21,16 +21,16 @@ int main(int argc, char **argv)
         const char *src_ip = "192.168.206.131";
         const char *dst_ip = "192.168.206.132";
 
-        ah_packet_t *ah_packet=ah_packet_create(32);
-        ah_packet_set_nexthdr(ah_packet,IPPROTO_ICMP);
-        ah_packet_set_seq_no(ah_packet,0x0102);
-        ah_packet_set_spi(ah_packet,0x0304);
-        ah_packet_set_auth_data(ah_packet,"authdat1authdat2authdat3authdat4");
-        ah_packet_set_data(ah_packet,"abc123",6);
+        ah_packet_t *ah_packet = ah_packet_create(32);
+        ah_packet_set_nexthdr(ah_packet, IPPROTO_ICMP);
+        ah_packet_set_seq_no(ah_packet, 0x0102);
+        ah_packet_set_spi(ah_packet, 0x0304);
+        ah_packet_set_auth_data(ah_packet, "authdat1authdat2authdat3authdat4");
+        ah_packet_set_data(ah_packet, "abc123", 6);
 
-        unsigned char ah_buffer[BUFFER_SIZE];
-        size_t ah_len=0;
-        ah_packet_get_packet_bytes(ah_packet,ah_buffer,&ah_len);
+        size_t ah_len = ah_packet_get_packet_len(ah_packet);
+        unsigned char ah_buffer[ah_len];
+        ah_packet_get_packet_bytes(ah_packet, ah_buffer);
 
         ip_packet_t *ip_packet = ip_packet_create();
         ip_packet_set_saddr(ip_packet, src_ip);
@@ -38,9 +38,9 @@ int main(int argc, char **argv)
         ip_packet_set_protocol(ip_packet, IPPROTO_AH);
         ip_packet_set_data(ip_packet, ah_buffer, ah_len);
 
-        unsigned char ip_buffer[BUFFER_SIZE];
-        size_t total_len=0;
-        ip_packet_get_packet_bytes(ip_packet,ip_buffer,&total_len);
+        size_t ip_len = ip_packet_get_packet_len(ip_packet);
+        unsigned char ip_buffer[ip_len];
+        ip_packet_get_packet_bytes(ip_packet, ip_buffer);
 
         /**
          * @brief 创建IPv4套接字
@@ -52,14 +52,14 @@ int main(int argc, char **argv)
             perror("socket");
             return -1;
         }
-        
+
         struct sockaddr_in send_addr;
         memset(&send_addr, 0, sizeof(struct sockaddr_in));
         send_addr.sin_family = AF_INET;
         send_addr.sin_addr.s_addr = inet_addr(dst_ip);
         /* 发送 */
         /* 如果此处目的ip与包的目的ip不一样，也可发送出去，且目的ip仍为包中设定的目的ip。此处的目的ip没有作用，但不可缺少 */
-        int n = sendto(send_socket, ip_buffer, total_len, 0, (struct sockaddr *)&send_addr, sizeof(struct sockaddr_in));
+        int n = sendto(send_socket, ip_buffer, ip_len, 0, (struct sockaddr *)&send_addr, sizeof(struct sockaddr_in));
         if (n < 0)
         {
             fprintf(stderr, "sendto error: %s\n", strerror(errno));
