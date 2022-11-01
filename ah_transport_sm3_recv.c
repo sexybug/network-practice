@@ -27,18 +27,18 @@ void memory_dump(void *ptr, int len)
     }
     printf("\n");
 }
-
 void ah_transport_sm3(ip_packet_t *ip_packet, uint8_t *key, int key_len, uint8_t *auth_data)
 {
     ip_packet_t *clone = ip_packet_clone(ip_packet);
-    clone->iph->tos = 0;
-    clone->iph->frag_off = 0;
-    clone->iph->ttl = 0;
-    clone->iph->check = 0;
+    ip_packet_set_tos(clone, 0);
+    ip_packet_set_frag_off(clone, 0);
+    ip_packet_set_ttl(clone, 0);
+    ip_packet_set_check(clone, 0);
 
-    uint8_t buf[BUFFER_SIZE];
-    size_t len = 0;
-    ip_packet_get_packet_bytes(clone, buf, &len);
+    size_t len = ip_packet_get_packet_len(clone);
+    uint8_t buf[len];
+
+    ip_packet_get_packet_bytes(clone, buf);
 
     printf("clone:\n");
     memory_dump(buf, len);
@@ -47,7 +47,6 @@ void ah_transport_sm3(ip_packet_t *ip_packet, uint8_t *key, int key_len, uint8_t
     printf("hmac-sm3:\n");
     memory_dump(auth_data, 32);
 }
-
 
 int main()
 {
@@ -79,19 +78,20 @@ int main()
             perror("recvfrom");
         }
 
-        ip_packet_t *ip=ip_packet_create_from_bytes(buffer,n);
+        ip_packet_t *ip_packet=ip_packet_create_from_bytes(buffer,n);
         printf("ip_packet:\n");
         memory_dump(buffer,n);
 
         printf("packet size: %d\n", n);
-        printf("source ip: %s\n", ip_packet_get_saddr(ip));
-        printf("destination ip: %s\n", ip_packet_get_daddr(ip));
-        printf("protocol: %d\n", ip_packet_get_protocol(ip));
+        printf("source ip: %s\n", ip_packet_get_saddr(ip_packet));
+        printf("destination ip: %s\n", ip_packet_get_daddr(ip_packet));
+        printf("protocol: %d\n", ip_packet_get_protocol(ip_packet));
         printf("\n");
 
-        unsigned char ah_buf[BUFFER_SIZE];
-        size_t ah_len=0;
-        ip_packet_get_data(ip,ah_buf,&ah_len);
+        
+        size_t ah_len=ip_packet_get_data_len(ip_packet);
+        unsigned char ah_buf[ah_len];
+        ip_packet_get_data(ip_packet,ah_buf);
 
         ah_packet_t *ah_packet=ah_packet_create_from_bytes(ah_buf,ah_len);
         printf("ah header\n");
@@ -100,14 +100,16 @@ int main()
         printf("AH SPI: 0x%08x\n", ah_packet_get_spi(ah_packet));
         printf("AH Sequence: %d\n", ah_packet_get_seq_no(ah_packet));
         printf("AH ICV:\n");
-        unsigned char auth_data[BUFFER_SIZE];
-        size_t auth_data_len = 0;
-        ah_packet_get_auth_data(ah_packet,auth_data,&auth_data_len);
+        
+        size_t auth_data_len = ah_packet_get_auth_data_len(ah_packet);
+        uint8_t auth_data[auth_data_len];
+        ah_packet_get_auth_data(ah_packet,auth_data);
+        printf("packet auth_data_len: %d\n",auth_data_len);
         memory_dump(auth_data,auth_data_len);
-        printf("auth_data_len: %d\n",auth_data_len);
 
         uint8_t my_auth_data[32];
-        ah_transport_sm3(ip, "123", 3, my_auth_data);
+        uint8_t key[]="123";
+        ah_transport_sm3(ip_packet, key, 3, my_auth_data);
         printf("my_auth_data:\n");
         memory_dump(my_auth_data, 32);
 

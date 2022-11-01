@@ -31,14 +31,15 @@ void memory_dump(void *ptr, int len)
 void ah_transport_sm3(ip_packet_t *ip_packet, uint8_t *key, int key_len, uint8_t *auth_data)
 {
     ip_packet_t *clone = ip_packet_clone(ip_packet);
-    clone->iph->tos = 0;
-    clone->iph->frag_off = 0;
-    clone->iph->ttl = 0;
-    clone->iph->check = 0;
+    ip_packet_set_tos(clone, 0);
+    ip_packet_set_frag_off(clone, 0);
+    ip_packet_set_ttl(clone, 0);
+    ip_packet_set_check(clone, 0);
 
-    uint8_t buf[BUFFER_SIZE];
-    size_t len = 0;
-    ip_packet_get_packet_bytes(clone, buf, &len);
+    size_t len = ip_packet_get_packet_len(clone);
+    uint8_t buf[len];
+
+    ip_packet_get_packet_bytes(clone, buf);
 
     printf("clone:\n");
     memory_dump(buf, len);
@@ -63,9 +64,9 @@ int main(int argc, char **argv)
         ah_packet_set_spi(ah_packet, 0x0304);
         ah_packet_set_data(ah_packet, "abcd1234abcd1234abcd1234abcd1234", 32);
 
-        unsigned char ah_buffer[BUFFER_SIZE];
-        size_t ah_len = 0;
-        ah_packet_get_packet_bytes(ah_packet, ah_buffer, &ah_len);
+        size_t ah_len = ah_packet_get_packet_len(ah_packet);
+        unsigned char ah_buffer[ah_len];
+        ah_packet_get_packet_bytes(ah_packet, ah_buffer);
 
         ip_packet_t *ip_packet = ip_packet_create();
         ip_packet_set_saddr(ip_packet, src_ip);
@@ -76,16 +77,17 @@ int main(int argc, char **argv)
         /* 改成先获取长度，再获取数据指针*/
         //计算IP/AH 传输模式数据包hmac-sm3
         uint8_t auth_data[32];
-        ah_transport_sm3(ip_packet, "123", 3, auth_data);
+        uint8_t key[]="123";
+        ah_transport_sm3(ip_packet, key, 3, auth_data);
         ah_packet_set_auth_data(ah_packet, auth_data);
-        ah_packet_get_packet_bytes(ah_packet, ah_buffer, &ah_len);
+        ah_packet_get_packet_bytes(ah_packet, ah_buffer);
         ip_packet_set_data(ip_packet, ah_buffer, ah_len);
 
-        unsigned char ip_buffer[BUFFER_SIZE];
-        size_t total_len = 0;
-        ip_packet_get_packet_bytes(ip_packet, ip_buffer, &total_len);
+        size_t ip_len = ip_packet_get_packet_len(ip_packet);
+        unsigned char ip_buffer[ip_len];
+        ip_packet_get_packet_bytes(ip_packet, ip_buffer);
         printf("ip_packet:\n");
-        memory_dump(ip_buffer, total_len);
+        memory_dump(ip_buffer, ip_len);
 
         /**
          * @brief 创建IPv4套接字
@@ -104,7 +106,7 @@ int main(int argc, char **argv)
         send_addr.sin_addr.s_addr = inet_addr(dst_ip);
         /* 发送 */
         /* 如果此处目的ip与包的目的ip不一样，也可发送出去，且目的ip仍为包中设定的目的ip。此处的目的ip没有作用，但不可缺少 */
-        int n = sendto(send_socket, ip_buffer, total_len, 0, (struct sockaddr *)&send_addr, sizeof(struct sockaddr_in));
+        int n = sendto(send_socket, ip_buffer, ip_len, 0, (struct sockaddr *)&send_addr, sizeof(struct sockaddr_in));
         if (n < 0)
         {
             fprintf(stderr, "sendto error: %s\n", strerror(errno));

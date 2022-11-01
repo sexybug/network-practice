@@ -30,7 +30,7 @@ int main()
     const char *expect_src_ip = "192.168.206.131";
 
     /* 只要是IPv4数据包（AF_INET），并且IP头中协议字段是ICMP，则都能接收到 */
-    int recv_socket = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
+    int recv_socket = socket(AF_INET, SOCK_RAW, IPPROTO_AH);
     if (recv_socket == -1)
     {
         perror("socket");
@@ -63,16 +63,17 @@ int main()
         printf("protocol: %d\n", ip_packet_get_protocol(ip));
         printf("\n");
 
-        size_t ah_len = 0;
+        size_t ah_len = ip_packet_get_data_len(ip);
         unsigned char ah_buf[ah_len];
         ip_packet_get_data(ip, ah_buf);
+
 
         ah_packet_t *ah_packet = ah_packet_create_from_bytes(ah_buf, ah_len);
         printf("ah header\n");
         printf("Next header: %d\n", ah_packet_get_nexthdr(ah_packet));
         printf("Length: %d\n", ah_packet_get_auth_hdr_len(ah_packet));
         printf("AH SPI: 0x%08x\n", ah_packet_get_spi(ah_packet));
-        printf("AH Sequence: %d\n", ah_packet_get_spi(ah_packet));
+        printf("AH Sequence: %d\n", ah_packet_get_seq_no(ah_packet));
         printf("AH ICV:\n");
         size_t auth_data_len = ah_packet_get_auth_data_len(ah_packet);
         unsigned char auth_data[auth_data_len];

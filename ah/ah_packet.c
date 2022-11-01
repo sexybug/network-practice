@@ -9,9 +9,9 @@ typedef struct ip_auth_hdr ip_auth_hdr;
 struct ah_packet_t
 {
     ip_auth_hdr *auth_hdr;
-    /* AH头 鉴别数据 字段长度。单位：字节 */
-    uint16_t auth_data_len;
     uint8_t *data;
+    /* AH头"鉴别数据"字段长度。单位：字节 */
+    uint16_t auth_data_len;
     uint16_t data_len;
 };
 
@@ -130,7 +130,7 @@ void ah_packet_get_data(ah_packet_t *ah_packet, uint8_t *data)
 
 uint16_t ah_packet_get_packet_len(ah_packet_t *ah_packet)
 {
-    return ah_packet_get_auth_hdr_len(ah_packet)+ah_packet->data_len;
+    return ah_packet_get_auth_hdr_len(ah_packet) + ah_packet->data_len;
 }
 
 void ah_packet_get_packet_bytes(ah_packet_t *ah_packet, uint8_t *packet_bytes)
@@ -142,24 +142,24 @@ void ah_packet_get_packet_bytes(ah_packet_t *ah_packet, uint8_t *packet_bytes)
 
 ah_packet_t *ah_packet_clone(ah_packet_t *ah_packet)
 {
-    ah_packet_t *clone= (ah_packet_t *)malloc(sizeof(ah_packet_t));
-    clone->auth_hdr=(ip_auth_hdr *)malloc(ah_packet_get_auth_hdr_len(ah_packet));
-    memcpy(clone->auth_hdr,ah_packet->auth_hdr,ah_packet_get_auth_hdr_len(ah_packet));
-    clone->auth_data_len=ah_packet->auth_data_len;
-    memcpy(clone,ah_packet->data,ah_packet->data_len);
-    clone->data_len=ah_packet->data_len;
+    ah_packet_t *clone = (ah_packet_t *)malloc(sizeof(ah_packet_t));
+    clone->auth_hdr = (ip_auth_hdr *)malloc(ah_packet_get_auth_hdr_len(ah_packet));
+    memcpy(clone->auth_hdr, ah_packet->auth_hdr, ah_packet_get_auth_hdr_len(ah_packet));
+    clone->auth_data_len = ah_packet->auth_data_len;
+    memcpy(clone, ah_packet->data, ah_packet->data_len);
+    clone->data_len = ah_packet->data_len;
     return clone;
 }
 
 void ah_packet_destory(ah_packet_t *ah_packet)
 {
-    if(ah_packet->data!=NULL)
+    if (ah_packet->data != NULL)
     {
         free(ah_packet->data);
-        ah_packet->data=NULL;
+        ah_packet->data = NULL;
     }
     free(ah_packet->auth_hdr);
-    ah_packet->auth_hdr=NULL;
+    ah_packet->auth_hdr = NULL;
     free(ah_packet);
-    ah_packet=NULL;
+    ah_packet = NULL;
 }
