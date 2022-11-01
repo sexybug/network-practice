@@ -76,6 +76,11 @@ void ah_packet_set_auth_data(ah_packet_t *ah_packet, uint8_t *auth_data)
     memcpy(ah_packet->auth_hdr->auth_data, auth_data, ah_packet->auth_data_len);
 }
 
+void ah_packet_set_auth_data_bezero(ah_packet_t *ah_packet)
+{
+    memset(ah_packet->auth_hdr->auth_data, 0, ah_packet->auth_data_len);
+}
+
 void ah_packet_set_data(ah_packet_t *ah_packet, uint8_t *data, uint16_t data_len)
 {
     if (ah_packet->data != NULL)

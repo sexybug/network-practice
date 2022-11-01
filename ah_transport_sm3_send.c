@@ -36,9 +36,16 @@ void ah_transport_sm3(ip_packet_t *ip_packet, uint8_t *key, int key_len, uint8_t
     ip_packet_set_ttl(clone, 0);
     ip_packet_set_check(clone, 0);
 
+    size_t ah_len=ip_packet_get_data_len(clone);
+    uint8_t ah_buf[ah_len];
+    ip_packet_get_data(clone,ah_buf);
+    ah_packet_t *ah_packet=ah_packet_create_from_bytes(ah_buf,ah_len);
+    ah_packet_set_auth_data_bezero(ah_packet);
+    ah_packet_get_auth_data(ah_packet,ah_buf);
+    ip_packet_set_data(clone,ah_buf,ah_len);
+
     size_t len = ip_packet_get_packet_len(clone);
     uint8_t buf[len];
-
     ip_packet_get_packet_bytes(clone, buf);
 
     printf("clone:\n");
@@ -60,7 +67,6 @@ int main(int argc, char **argv)
         ah_packet_t *ah_packet = ah_packet_create(32);
         ah_packet_set_nexthdr(ah_packet, IPPROTO_ICMP);
         ah_packet_set_seq_no(ah_packet, 0x0102);
-        //还需set_id
         ah_packet_set_spi(ah_packet, 0x0304);
         ah_packet_set_data(ah_packet, "abcd1234abcd1234abcd1234abcd1234", 32);
 
@@ -71,13 +77,14 @@ int main(int argc, char **argv)
         ip_packet_t *ip_packet = ip_packet_create();
         ip_packet_set_saddr(ip_packet, src_ip);
         ip_packet_set_daddr(ip_packet, dst_ip);
+        ip_packet_set_id(ip_packet,0x0506);
         ip_packet_set_protocol(ip_packet, IPPROTO_AH);
         ip_packet_set_data(ip_packet, ah_buffer, ah_len);
 
         /* 改成先获取长度，再获取数据指针*/
         //计算IP/AH 传输模式数据包hmac-sm3
         uint8_t auth_data[32];
-        uint8_t key[]="123";
+        uint8_t key[] = "123";
         ah_transport_sm3(ip_packet, key, 3, auth_data);
         ah_packet_set_auth_data(ah_packet, auth_data);
         ah_packet_get_packet_bytes(ah_packet, ah_buffer);
