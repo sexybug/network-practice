@@ -28,6 +28,34 @@ void memory_dump(void *ptr, int len)
     printf("\n");
 }
 
+void ah_transport_sm3(ip_packet_t *ip_packet, uint8_t *key, int key_len, uint8_t *auth_data)
+{
+    ip_packet_t *clone = ip_packet_clone(ip_packet);
+    ip_packet_set_tos(clone, 0);
+    ip_packet_set_frag_off(clone, 0);
+    ip_packet_set_ttl(clone, 0);
+    ip_packet_set_check_bezero(clone);
+
+    size_t ah_len = ip_packet_get_data_len(clone);
+    uint8_t ah_buf[ah_len];
+    ip_packet_get_data(clone, ah_buf);
+    ah_packet_t *ah_packet = ah_packet_create_from_bytes(ah_buf, ah_len);
+    ah_packet_set_auth_data_bezero(ah_packet);
+    ah_packet_get_auth_data(ah_packet, ah_buf);
+    ip_packet_set_data(clone, ah_buf, ah_len);
+
+    size_t len = ip_packet_get_packet_len(clone);
+    uint8_t buf[len];
+    ip_packet_get_packet_bytes(clone, buf);
+
+    printf("clone:\n");
+    memory_dump(buf, len);
+
+    sm3_hmac(buf, len, key, key_len, auth_data);
+    printf("hmac-sm3:\n");
+    memory_dump(auth_data, 32);
+}
+
 int main()
 {
     const char *expect_src_ip = "192.168.206.131";
@@ -69,7 +97,7 @@ int main()
         printf("\n");
 
         size_t ah_len = ip_packet_get_data_len(ip_packet);
-        uint8_t ah_buf[ah_len];
+        unsigned char ah_buf[ah_len];
         ip_packet_get_data(ip_packet, ah_buf);
 
         ah_packet_t *ah_packet = ah_packet_create_from_bytes(ah_buf, ah_len);
@@ -78,6 +106,19 @@ int main()
         printf("Length: %d\n", ah_packet_get_auth_hdr_len(ah_packet));
         printf("AH SPI: 0x%08x\n", ah_packet_get_spi(ah_packet));
         printf("AH Sequence: %d\n", ah_packet_get_seq_no(ah_packet));
+        printf("AH ICV:\n");
+
+        size_t auth_data_len = ah_packet_get_auth_data_len(ah_packet);
+        uint8_t auth_data[auth_data_len];
+        ah_packet_get_auth_data(ah_packet, auth_data);
+        printf("packet auth_data_len: %d\n", auth_data_len);
+        memory_dump(auth_data, auth_data_len);
+
+        uint8_t my_auth_data[32];
+        uint8_t key[] = "123";
+        ah_transport_sm3(ip_packet, key, 3, my_auth_data);
+        printf("my_auth_data:\n");
+        memory_dump(my_auth_data, 32);
 
         size_t inner_ip_len = ah_packet_get_data_len(ah_packet);
         uint8_t inner_ip_buf[inner_ip_len];

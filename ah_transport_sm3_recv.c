@@ -34,7 +34,7 @@ void ah_transport_sm3(ip_packet_t *ip_packet, uint8_t *key, int key_len, uint8_t
     ip_packet_set_tos(clone, 0);
     ip_packet_set_frag_off(clone, 0);
     ip_packet_set_ttl(clone, 0);
-    ip_packet_set_check(clone, 0);
+    ip_packet_set_check_bezero(clone);
 
     size_t ah_len = ip_packet_get_data_len(clone);
     uint8_t ah_buf[ah_len];

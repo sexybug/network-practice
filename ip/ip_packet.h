@@ -21,6 +21,8 @@ void ip_packet_set_ttl(ip_packet_t *ip_packet, uint8_t ttl);
 void ip_packet_set_protocol(ip_packet_t *ip_packet, uint8_t protocol);
 /* 计算并填充首部校验和(16位) */
 void ip_packet_set_check(ip_packet_t *ip_packet);
+/* 首部校验和置0 */
+void ip_packet_set_check_bezero(ip_packet_t *ip_packet);
 /* 校验首部校验和,成功返回true(即1) */
 bool ip_packet_check(ip_packet_t *ip_packet);
 /* 源IP地址 */
