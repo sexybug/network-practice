@@ -142,7 +142,7 @@
         },
         {
             "type": "cppbuild",
-            "label": "test ah_transport_sm3_send",
+            "label": "test ah_transport_sm3",
             "command": "/usr/bin/gcc",
             "args": [
                 "-fdiagnostics-color=always",

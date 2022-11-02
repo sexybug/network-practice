@@ -8,6 +8,7 @@
 typedef struct iphdr iphdr;
 struct ip_packet_t
 {
+    /* iphdr中的数据均为网络字节序 */
     iphdr *iph;
     uint8_t *data;
     uint16_t data_len;
@@ -78,9 +79,29 @@ void ip_packet_set_protocol(ip_packet_t *ip_packet, uint8_t protocol)
     ip_packet->iph->protocol = protocol;
 }
 
-void ip_packet_set_check(ip_packet_t *ip_packet, uint16_t check)
+uint16_t ip_checksum(const iphdr *iph)
 {
-    ip_packet->iph->check = htons(check);
+    uint16_t *buffer = (uint16_t *)iph;
+    uint8_t buf_len = iph->ihl * 4 / 2;
+
+    uint32_t sum = 0;
+    for(int i=0;i<buf_len;i++)
+    {
+        sum+=ntohs(*(buffer+i));
+    }
+    sum = (sum >> 16) + (sum & 0xffff);
+    return (uint16_t)(~sum);
+}
+
+void ip_packet_set_check(ip_packet_t *ip_packet)
+{
+    ip_packet->iph->check = 0;
+    ip_packet->iph->check = htons(ip_checksum(ip_packet->iph));
+}
+
+bool ip_packet_check(ip_packet_t *ip_packet)
+{
+    return ip_checksum(ip_packet->iph)==0;
 }
 
 void ip_packet_set_saddr(ip_packet_t *ip_packet, const char *saddr)

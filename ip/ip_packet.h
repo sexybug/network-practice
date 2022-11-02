@@ -2,6 +2,7 @@
 #define IP_PACKET_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 typedef struct ip_packet_t ip_packet_t;
 
@@ -18,8 +19,10 @@ void ip_packet_set_frag_off(ip_packet_t *ip_packet, uint16_t frag_off);
 void ip_packet_set_ttl(ip_packet_t *ip_packet, uint8_t ttl);
 /* 协议字段(8位) */
 void ip_packet_set_protocol(ip_packet_t *ip_packet, uint8_t protocol);
-/* 首部校验(16位) */
-void ip_packet_set_check(ip_packet_t *ip_packet, uint16_t check);
+/* 计算并填充首部校验和(16位) */
+void ip_packet_set_check(ip_packet_t *ip_packet);
+/* 校验首部校验和,成功返回true(即1) */
+bool ip_packet_check(ip_packet_t *ip_packet);
 /* 源IP地址 */
 void ip_packet_set_saddr(ip_packet_t *ip_packet, const char *saddr);
 /* 目的IP地址 */

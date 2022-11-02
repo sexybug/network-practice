@@ -1,6 +1,5 @@
 #include "ip/ip_packet.h"
 #include "ah/ah_packet.h"
-#include "sm3/hmac_sm3.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,66 +27,43 @@ void memory_dump(void *ptr, int len)
     printf("\n");
 }
 
-void ah_transport_sm3(ip_packet_t *ip_packet, uint8_t *key, int key_len, uint8_t *auth_data)
-{
-    ip_packet_t *clone = ip_packet_clone(ip_packet);
-    ip_packet_set_tos(clone, 0);
-    ip_packet_set_frag_off(clone, 0);
-    ip_packet_set_ttl(clone, 0);
-    ip_packet_set_check(clone, 0);
-
-    size_t ah_len = ip_packet_get_data_len(clone);
-    uint8_t ah_buf[ah_len];
-    ip_packet_get_data(clone, ah_buf);
-    ah_packet_t *ah_packet = ah_packet_create_from_bytes(ah_buf, ah_len);
-    ah_packet_set_auth_data_bezero(ah_packet);
-    ah_packet_get_packet_bytes(ah_packet, ah_buf);
-    ip_packet_set_data(clone, ah_buf, ah_len);
-
-    size_t len = ip_packet_get_packet_len(clone);
-    uint8_t buf[len];
-    ip_packet_get_packet_bytes(clone, buf);
-
-    printf("clone:\n");
-    memory_dump(buf, len);
-
-    sm3_hmac(buf, len, key, key_len, auth_data);
-    printf("hmac-sm3:\n");
-    memory_dump(auth_data, 32);
-}
-
 int main(int argc, char **argv)
 {
     for (int i = 0; i < 1; ++i)
     {
-
         const char *src_ip = "192.168.206.131";
         const char *dst_ip = "192.168.206.132";
 
+        /* 创建原IP包 */
+        ip_packet_t *origin_ip_packet = ip_packet_create();
+        ip_packet_set_saddr(origin_ip_packet, src_ip);
+        ip_packet_set_daddr(origin_ip_packet, dst_ip);
+        ip_packet_set_id(origin_ip_packet, 0x0506);
+        ip_packet_set_protocol(origin_ip_packet, IPPROTO_ICMP);
+        ip_packet_set_data(origin_ip_packet, "ipdata01ipdata02ipdata03ipdata04", 32);
+        ip_packet_set_check(origin_ip_packet);
+
+        size_t origin_ip_len=ip_packet_get_packet_len(origin_ip_packet);
+        uint8_t origin_ip_buf[origin_ip_len];
+        ip_packet_get_packet_bytes(origin_ip_packet,origin_ip_buf);
+
+        /* 创建AH包 */
         ah_packet_t *ah_packet = ah_packet_create(32);
-        ah_packet_set_nexthdr(ah_packet, IPPROTO_ICMP);
+        ah_packet_set_nexthdr(ah_packet, IPPROTO_IPIP);
         ah_packet_set_seq_no(ah_packet, 0x0102);
         ah_packet_set_spi(ah_packet, 0x0304);
-        ah_packet_set_data(ah_packet, "abcd1234abcd1234abcd1234abcd1234", 32);
+        ah_packet_set_data(ah_packet, origin_ip_buf, origin_ip_len);
 
         size_t ah_len = ah_packet_get_packet_len(ah_packet);
         unsigned char ah_buffer[ah_len];
         ah_packet_get_packet_bytes(ah_packet, ah_buffer);
 
+/* 创建最外层IP包 */
         ip_packet_t *ip_packet = ip_packet_create();
         ip_packet_set_saddr(ip_packet, src_ip);
         ip_packet_set_daddr(ip_packet, dst_ip);
         ip_packet_set_id(ip_packet, 0x0506);
         ip_packet_set_protocol(ip_packet, IPPROTO_AH);
-        ip_packet_set_data(ip_packet, ah_buffer, ah_len);
-
-        /* 改成先获取长度，再获取数据指针*/
-        //计算IP/AH 传输模式数据包hmac-sm3
-        uint8_t auth_data[32];
-        uint8_t key[] = "123";
-        ah_transport_sm3(ip_packet, key, 3, auth_data);
-        ah_packet_set_auth_data(ah_packet, auth_data);
-        ah_packet_get_packet_bytes(ah_packet, ah_buffer);
         ip_packet_set_data(ip_packet, ah_buffer, ah_len);
 
         size_t ip_len = ip_packet_get_packet_len(ip_packet);

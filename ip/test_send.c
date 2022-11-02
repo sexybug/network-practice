@@ -23,7 +23,9 @@ int main(int argc, char **argv)
         ip_packet_set_saddr(ip_packet, src_ip);
         ip_packet_set_daddr(ip_packet, dst_ip);
         ip_packet_set_protocol(ip_packet, IPPROTO_ICMP);
+        ip_packet_set_id(ip_packet,0x0102);
         ip_packet_set_data(ip_packet, "hello", 500);
+        ip_packet_set_check(ip_packet);
 
         size_t total_len=ip_packet_get_packet_len(ip_packet);
         unsigned char buffer[total_len];

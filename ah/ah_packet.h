@@ -16,7 +16,7 @@ void ah_packet_set_spi(ah_packet_t *ah_packet, uint32_t spi);
 void ah_packet_set_seq_no(ah_packet_t *ah_packet, uint32_t seq_no);
 /* 鉴别数据(变长的) */
 void ah_packet_set_auth_data(ah_packet_t *ah_packet, uint8_t *auth_data);
-/* 鉴别数据(变长的) */
+/* 鉴别数据置0，用于鉴别数据计算 */
 void ah_packet_set_auth_data_bezero(ah_packet_t *ah_packet);
 /* 数据部分 */
 void ah_packet_set_data(ah_packet_t *ah_packet, uint8_t *data, uint16_t data_len);
