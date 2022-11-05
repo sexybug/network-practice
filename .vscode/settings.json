@@ -20,6 +20,8 @@
         "stdio.h": "c",
         "errno.h": "c",
         "stddef.h": "c",
-        "stdbool.h": "c"
+        "stdbool.h": "c",
+        "icmp.h": "c",
+        "malloc.h": "c"
     }
 }

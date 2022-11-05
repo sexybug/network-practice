@@ -34,7 +34,7 @@ ah_packet_t *ah_packet_create(uint16_t auth_data_len)
 
     return ah_packet;
 }
-ah_packet_t *ah_packet_create_from_bytes(uint8_t *packet_bytes, uint16_t total_len)
+ah_packet_t *ah_packet_create_from_bytes(const uint8_t *packet_bytes, uint16_t total_len)
 {
     ip_auth_hdr *auth_hdr = (ip_auth_hdr *)packet_bytes;
     /* 认证头（包括鉴别数据）总长度 */
@@ -71,7 +71,7 @@ void ah_packet_set_seq_no(ah_packet_t *ah_packet, uint32_t seq_no)
     ah_packet->auth_hdr->seq_no = htonl(seq_no);
 }
 
-void ah_packet_set_auth_data(ah_packet_t *ah_packet, uint8_t *auth_data)
+void ah_packet_set_auth_data(ah_packet_t *ah_packet, const uint8_t *auth_data)
 {
     memcpy(ah_packet->auth_hdr->auth_data, auth_data, ah_packet->auth_data_len);
 }
@@ -81,7 +81,7 @@ void ah_packet_set_auth_data_bezero(ah_packet_t *ah_packet)
     memset(ah_packet->auth_hdr->auth_data, 0, ah_packet->auth_data_len);
 }
 
-void ah_packet_set_data(ah_packet_t *ah_packet, uint8_t *data, uint16_t data_len)
+void ah_packet_set_data(ah_packet_t *ah_packet, const uint8_t *data, uint16_t data_len)
 {
     if (ah_packet->data != NULL)
     {

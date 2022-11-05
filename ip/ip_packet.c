@@ -38,7 +38,7 @@ ip_packet_t *ip_packet_create()
     return ip_packet;
 }
 
-ip_packet_t *ip_packet_create_from_bytes(uint8_t *packet_bytes, uint16_t total_len)
+ip_packet_t *ip_packet_create_from_bytes(const uint8_t *packet_bytes, uint16_t total_len)
 {
     iphdr *iph = (iphdr *)packet_bytes;
     uint16_t iph_len = iph->ihl * 4;
@@ -119,7 +119,7 @@ void ip_packet_set_daddr(ip_packet_t *ip_packet, const char *daddr)
     ip_packet->iph->daddr = inet_addr(daddr);
 }
 
-void ip_packet_set_data(ip_packet_t *ip_packet, uint8_t *data, uint16_t data_len)
+void ip_packet_set_data(ip_packet_t *ip_packet, const uint8_t *data, uint16_t data_len)
 {
     if (ip_packet->data != NULL)
     {

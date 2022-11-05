@@ -41,7 +41,7 @@ void ah_transport_sm3(ip_packet_t *ip_packet, uint8_t *key, int key_len, uint8_t
     ip_packet_get_data(clone, ah_buf);
     ah_packet_t *ah_packet = ah_packet_create_from_bytes(ah_buf, ah_len);
     ah_packet_set_auth_data_bezero(ah_packet);
-    ah_packet_get_auth_data(ah_packet, ah_buf);
+    ah_packet_get_packet_bytes(ah_packet, ah_buf);
     ip_packet_set_data(clone, ah_buf, ah_len);
 
     size_t len = ip_packet_get_packet_len(clone);

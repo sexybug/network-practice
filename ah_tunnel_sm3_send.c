@@ -84,7 +84,7 @@ int main(int argc, char **argv)
         ah_packet_set_data(ah_packet, origin_ip_buf, origin_ip_len);
 
         size_t ah_len = ah_packet_get_packet_len(ah_packet);
-        unsigned char ah_buffer[ah_len];
+        uint8_t ah_buffer[ah_len];
         ah_packet_get_packet_bytes(ah_packet, ah_buffer);
 
         ip_packet_t *ip_packet = ip_packet_create();
@@ -93,6 +93,7 @@ int main(int argc, char **argv)
         ip_packet_set_id(ip_packet, 0x0506);
         ip_packet_set_protocol(ip_packet, IPPROTO_AH);
         ip_packet_set_data(ip_packet, ah_buffer, ah_len);
+        ip_packet_set_check(ip_packet);
 
         //计算IP/AH 传输模式数据包hmac-sm3
         uint8_t auth_data[32];

@@ -12,3 +12,7 @@
 #include <linux/ip.h>
 
 #include <stdint.h>
+
+#include <netinet/ip_icmp.h>
+
+#include <linux/icmp.h>

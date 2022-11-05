@@ -7,7 +7,7 @@
 typedef struct ip_packet_t ip_packet_t;
 
 ip_packet_t *ip_packet_create();
-ip_packet_t *ip_packet_create_from_bytes(uint8_t *packet_bytes, uint16_t total_len);
+ip_packet_t *ip_packet_create_from_bytes(const uint8_t *packet_bytes, uint16_t total_len);
 
 /* 服务类型字段(8位) */
 void ip_packet_set_tos(ip_packet_t *ip_packet, uint8_t tos);
@@ -30,7 +30,7 @@ void ip_packet_set_saddr(ip_packet_t *ip_packet, const char *saddr);
 /* 目的IP地址 */
 void ip_packet_set_daddr(ip_packet_t *ip_packet, const char *daddr);
 /* 数据部分 */
-void ip_packet_set_data(ip_packet_t *ip_packet, uint8_t *data, uint16_t data_len);
+void ip_packet_set_data(ip_packet_t *ip_packet, const uint8_t *data, uint16_t data_len);
 
 /* 获取IP头长度，单位：字节 */
 uint16_t ip_packet_get_iph_len(ip_packet_t *ip_packet);

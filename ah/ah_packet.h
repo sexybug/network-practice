@@ -6,7 +6,7 @@
 typedef struct ah_packet_t ah_packet_t;
 
 ah_packet_t *ah_packet_create(uint16_t auth_data_len);
-ah_packet_t *ah_packet_create_from_bytes(uint8_t *packet_bytes, uint16_t total_len);
+ah_packet_t *ah_packet_create_from_bytes(const uint8_t *packet_bytes, uint16_t total_len);
 
 /* 下一个头(8位) */
 void ah_packet_set_nexthdr(ah_packet_t *ah_packet, uint8_t nexthdr);
@@ -15,11 +15,11 @@ void ah_packet_set_spi(ah_packet_t *ah_packet, uint32_t spi);
 /* 序列号(32位) */
 void ah_packet_set_seq_no(ah_packet_t *ah_packet, uint32_t seq_no);
 /* 鉴别数据(变长的) */
-void ah_packet_set_auth_data(ah_packet_t *ah_packet, uint8_t *auth_data);
+void ah_packet_set_auth_data(ah_packet_t *ah_packet, const uint8_t *auth_data);
 /* 鉴别数据置0，用于鉴别数据计算 */
 void ah_packet_set_auth_data_bezero(ah_packet_t *ah_packet);
 /* 数据部分 */
-void ah_packet_set_data(ah_packet_t *ah_packet, uint8_t *data, uint16_t data_len);
+void ah_packet_set_data(ah_packet_t *ah_packet, const uint8_t *data, uint16_t data_len);
 
 uint8_t ah_packet_get_nexthdr(ah_packet_t *ah_packet);
 /* 获取AH头长度，单位：字节 */
