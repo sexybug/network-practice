@@ -9,6 +9,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <linux/icmp.h>
 
 /* 网卡接口默认MTU=1500 */
 const int BUFFER_SIZE = 1500;
@@ -17,12 +18,11 @@ int main(int argc, char **argv)
 {
     for (int i = 0; i < 2; ++i)
     {
-
         const char *src_ip = "192.168.206.131";
         const char *dst_ip = "192.168.206.132";
 
         icmp_t *icmp = icmp_create();
-        icmp_set_type(icmp, 8);
+        icmp_set_type(icmp, ICMP_ECHO);
         icmp_set_code(icmp, 0);
         icmp_set_id(icmp, 0x1234);
         icmp_set_seqence(icmp, 0x5678);
