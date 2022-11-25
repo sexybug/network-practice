@@ -30,7 +30,7 @@ int main()
     const char *expect_src_ip = "192.168.206.131";
 
     /* 只要是IPv4数据包（AF_INET），并且IP头中协议字段是ICMP，则都能接收到 */
-    int recv_socket = socket(AF_INET, SOCK_RAW, IPPROTO_AH);
+    int recv_socket = socket(AF_INET, SOCK_RAW, IPPROTO_ESP);
     if (recv_socket == -1)
     {
         perror("socket");
@@ -82,7 +82,7 @@ int main()
         size_t pad_len = esp_get_pad_len(esp);
         uint8_t padding[pad_len];
         esp_get_padding(esp, padding);
-        memory_dump(padding, padding);
+        memory_dump(padding, pad_len);
 
         printf("pad_len: %d\n", pad_len);
 

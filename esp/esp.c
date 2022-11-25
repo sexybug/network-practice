@@ -155,7 +155,10 @@ uint8_t esp_get_pad_len(esp_t *esp)
 
 void esp_get_padding(esp_t *esp, uint8_t *padding)
 {
-    memcpy(padding, esp->padding, esp->pad_len);
+    if (esp->padding != NULL)
+    {
+        memcpy(padding, esp->padding, esp->pad_len);
+    }
 }
 
 uint8_t esp_get_nexthdr(esp_t *esp)
@@ -170,7 +173,10 @@ uint16_t esp_get_icv_len(esp_t *esp)
 
 void esp_get_icv(esp_t *esp, uint8_t *icv)
 {
-    memcpy(icv, esp->icv, esp->icv_len);
+    if (esp->icv != NULL)
+    {
+        memcpy(icv, esp->icv, esp->icv_len);
+    }
 }
 
 uint16_t esp_get_packet_len(esp_t *esp)
@@ -193,6 +199,32 @@ void esp_get_packet_bytes(esp_t *esp, uint8_t *packet_bytes)
     {
         memcpy(packet_bytes + 8 + esp->payload_len + esp->pad_len + 2, esp->icv, esp->icv_len);
     }
+}
+/**
+ * @brief 获取加密部分的数据长度
+ *
+ * @param esp
+ * @return uint16_t
+ */
+uint16_t esp_get_enc_data_len(esp_t *esp)
+{
+    return esp->payload_len + esp->pad_len + 2;
+}
+/**
+ * @brief 获取加密部分的数据
+ *
+ * @param esp
+ * @return uint16_t
+ */
+void esp_get_enc_data(esp_t *esp, uint8_t *enc_data)
+{
+    memcpy(enc_data, esp->payload, esp->payload_len);
+    if (esp->padding != NULL)
+    {
+        memcpy(enc_data + esp->payload_len, esp->padding, esp->pad_len);
+    }
+    *(enc_data + esp->payload_len + esp->pad_len) = esp->pad_len;
+    *(enc_data + esp->payload_len + esp->pad_len + 1) = esp->nexthdr;
 }
 
 esp_t *esp_clone(esp_t *esp)
