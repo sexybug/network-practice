@@ -1,5 +1,5 @@
 /* 接收来源于特定ip的、特定协议的数据包 */
-#include "ah_packet.h"
+#include "esp.h"
 #include "../ip/ip_packet.h"
 
 #include <stdio.h>
@@ -63,23 +63,36 @@ int main()
         printf("protocol: %d\n", ip_packet_get_protocol(ip));
         printf("\n");
 
-        size_t ah_len = ip_packet_get_data_len(ip);
-        uint8_t ah_buf[ah_len];
-        ip_packet_get_data(ip, ah_buf);
+        size_t esp_len = ip_packet_get_data_len(ip);
+        uint8_t esp_buf[esp_len];
+        ip_packet_get_data(ip, esp_buf);
 
 
-        ah_packet_t *ah_packet = ah_packet_create_from_bytes(ah_buf, ah_len);
-        printf("ah header\n");
-        printf("Next header: %d\n", ah_packet_get_nexthdr(ah_packet));
-        printf("Length: %d\n", ah_packet_get_auth_hdr_len(ah_packet));
-        printf("AH SPI: 0x%08x\n", ah_packet_get_spi(ah_packet));
-        printf("AH Sequence: %d\n", ah_packet_get_seq_no(ah_packet));
-        printf("AH ICV:\n");
-        size_t auth_data_len = ah_packet_get_auth_data_len(ah_packet);
-        uint8_t auth_data[auth_data_len];
-        ah_packet_get_auth_data(ah_packet, auth_data);
-        memory_dump(auth_data, auth_data_len);
-        printf("\n");
+        esp_t *esp = esp_create_from_bytes(esp_buf, esp_len,16);
+        printf("esp header\n");
+        printf("spi: %08x\n", esp_get_spi(esp));
+        printf("seq_no: %08x\n", esp_get_seq_no(esp));
+        printf("payload:\n");
+        size_t payload_len = esp_get_payload_len(esp);
+        uint8_t payload[payload_len];
+        esp_get_payload(esp, payload);
+        memory_dump(payload, payload_len);
+        
+        printf("padding:\n");
+        size_t pad_len = esp_get_pad_len(esp);
+        uint8_t padding[pad_len];
+        esp_get_padding(esp, padding);
+        memory_dump(padding, padding);
+
+        printf("pad_len: %d\n", pad_len);
+
+        printf("nexthdr: %d\n", esp_get_nexthdr(esp));
+
+        printf("icv:\n");
+        size_t icv_len = esp_get_icv_len(esp);
+        uint8_t icv[icv_len];
+        esp_get_icv(esp, icv);
+        memory_dump(icv, icv_len);
 
         ++i;
     }

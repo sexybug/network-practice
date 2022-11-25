@@ -12,6 +12,7 @@ esp_t *esp_create_from_bytes(const uint8_t *bytes, uint16_t total_len, uint16_t 
 void esp_set_spi(esp_t *esp, uint32_t spi);
 
 void esp_set_seq_no(esp_t *esp, uint32_t seq_no);
+
 void esp_set_payload(esp_t *esp, const uint8_t *payload, uint16_t payload_len);
 
 void esp_set_padding(esp_t *esp, const uint8_t *padding, uint8_t pad_len);
