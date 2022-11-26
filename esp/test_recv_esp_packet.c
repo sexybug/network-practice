@@ -92,14 +92,12 @@ int main()
         int auth_data_len = esp_packet_get_auth_data_len(esp);
         uint8_t auth_data[auth_data_len];
         esp_packet_get_auth_data(esp, auth_data);
-        uint8_t icv[32];
-        sm3_hmac(auth_data, auth_data_len, key, key_len, icv);
+        uint8_t new_icv[32];
+        sm3_hmac(auth_data, auth_data_len, key, key_len, new_icv);
         //比较完整性校验值
-        uint8_t packet_icv[icv_len];
-        esp_packet_get_icv(esp,packet_icv);
         int flag=1;
         for(int i=0;i<icv_len;++i){
-            if(icv[i]!=packet_icv[i])
+            if(icv[i]!=new_icv[i])
             {
                 flag=0;
                 break;
