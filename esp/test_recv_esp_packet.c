@@ -69,8 +69,7 @@ int main()
         uint8_t esp_buf[esp_len];
         ip_packet_get_data(ip, esp_buf);
 
-
-        esp_packet_t *esp = esp_packet_create_from_bytes(esp_buf, esp_len,32);
+        esp_packet_t *esp = esp_packet_create_from_bytes(esp_buf, esp_len, 32);
         printf("esp header\n");
         printf("spi: %08x\n", esp_packet_get_spi(esp));
         printf("seq_no: %08x\n", esp_packet_get_seq_no(esp));
@@ -85,6 +84,35 @@ int main()
         uint8_t icv[icv_len];
         esp_packet_get_icv(esp, icv);
         memory_dump(icv, icv_len);
+
+        uint8_t key[] = "1234567812345678";
+        int key_len = 16;
+        uint8_t iv[] = "1234567812345678";
+        //计算完整性校验值
+        int auth_data_len = esp_packet_get_auth_data_len(esp);
+        uint8_t auth_data[auth_data_len];
+        esp_packet_get_auth_data(esp, auth_data);
+        uint8_t icv[32];
+        sm3_hmac(auth_data, auth_data_len, key, key_len, icv);
+        //比较完整性校验值
+        uint8_t packet_icv[icv_len];
+        esp_packet_get_icv(esp,packet_icv);
+        int flag=1;
+        for(int i=0;i<icv_len;++i){
+            if(icv[i]!=packet_icv[i])
+            {
+                flag=0;
+                break;
+            }
+        }
+        printf("icv check result:%d\n",flag);
+
+        //解密
+        uint8_t plain_data[data_len];
+        int plain_data_len=0;
+        sm4_cbc_dec(key,iv,data,data_len,plain_data,&plain_data_len);
+        printf("plain_data:\n");
+        memory_dump(plain_data,plain_data_len);
 
         ++i;
     }

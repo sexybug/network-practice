@@ -126,6 +126,18 @@ void esp_packet_get_packet_bytes(esp_packet_t *esp_packet, uint8_t *packet_bytes
     }
 }
 
+uint16_t esp_packet_get_auth_data_len(esp_packet_t *esp_packet)
+{
+    return 8 + esp_packet->data_len;
+}
+
+void esp_packet_get_auth_data(esp_packet_t *esp_packet, uint8_t *auth_data)
+{
+    *((uint32_t *)auth_data) = htonl(esp_packet->spi);
+    *((uint32_t *)(auth_data + 4)) = htonl(esp_packet->seq_no);
+    memcpy(auth_data + 8, esp_packet->data, esp_packet->data_len);
+}
+
 esp_packet_t *esp_packet_clone(esp_packet_t *esp_packet)
 {
     esp_packet_t *clone = (esp_packet_t *)malloc(sizeof(esp_packet_t));

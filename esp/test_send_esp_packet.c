@@ -36,34 +36,32 @@ int main(int argc, char **argv)
         const char *src_ip = "192.168.40.128";
         const char *dst_ip = "192.168.40.129";
 
-        uint8_t key[] = "1234567812345678";
-        int key_len = 16;
-        uint8_t plain_data[] = "iv01iv01iv01iv01dat1dat2dat3dat4";
-        int data_len = 32;
-
         esp_packet_t *esp = esp_packet_create();
         esp_packet_set_spi(esp, 0x01020304);
         esp_packet_set_seq_no(esp, 0x05060708);
-        esp_packet_set_data(esp, plain_data, data_len);
+
+        uint8_t key[] = "1234567812345678";
+        int key_len = 16;
+        uint8_t iv[] = "1234567812345678";
+        uint8_t plain_data[] = "dat1dat2dat3dat4";
+        int data_len = 16;
         //加密
         uint8_t cipher_data[1024];
         int out_len = 0;
-        sm4_cbc_enc(key, plain_data, plain_data, data_len, cipher_data, &out_len);
-        //完整性校验值
-        int enc_data_len = esp_packet_get_packet_len(esp);
-        uint8_t enc_data[enc_data_len];
-        esp_packet_get_packet_bytes(esp, enc_data);
-        memory_dump(enc_data, enc_data_len);
-        uint8_t icv[32];
-        sm3_hmac(plain_data, data_len, key, key_len, icv);
-
+        sm4_cbc_enc(key, iv, plain_data, data_len, cipher_data, &out_len);
         esp_packet_set_data(esp, cipher_data, data_len);
+        //完整性校验值
+        int auth_data_len = esp_packet_get_auth_data_len(esp);
+        uint8_t auth_data[auth_data_len];
+        esp_packet_get_auth_data(esp, auth_data);
+        uint8_t icv[32];
+        sm3_hmac(auth_data, auth_data_len, key, key_len, icv);
         esp_packet_set_icv(esp, icv, 32);
 
         size_t esp_len = esp_packet_get_packet_len(esp);
         uint8_t esp_buffer[esp_len];
         esp_packet_get_packet_bytes(esp, esp_buffer);
-
+        //创建IP包
         ip_packet_t *ip_packet = ip_packet_create();
         ip_packet_set_saddr(ip_packet, src_ip);
         ip_packet_set_daddr(ip_packet, dst_ip);

@@ -33,6 +33,11 @@ uint16_t esp_packet_get_packet_len(esp_packet_t *esp_packet);
 
 void esp_packet_get_packet_bytes(esp_packet_t *esp_packet, uint8_t *packet_bytes);
 
+//获取包含在完整性校验部分的数据长度
+uint16_t esp_packet_get_auth_data_len(esp_packet_t *esp_packet);
+//获取包含在完整性校验部分的数据
+void esp_packet_get_auth_data(esp_packet_t *esp_packet, uint8_t *auth_data);
+
 esp_packet_t *esp_packet_clone(esp_packet_t *esp_packet);
 
 void esp_packet_destroy(esp_packet_t *esp_packet);
