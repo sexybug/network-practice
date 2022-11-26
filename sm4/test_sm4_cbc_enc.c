@@ -17,14 +17,14 @@ void memory_dump(void *ptr, int len)
 int main()
 {
     uint8_t key[] = "1234567812345678";
-    uint8_t iv[] = "1234567812345678";
-    uint8_t msg[] = "abcdefghabcdefghabcdefghabcdefgh";
+    uint8_t iv[] = "iv01iv01iv01iv01";
+    uint8_t msg[] = "iv01iv01iv01iv01dat1dat2dat3dat4";
     int msg_len=32;
 
     uint8_t out[1024];
     int out_len=0;
 
-    sm4_cbc(key,iv,msg,msg_len,out,&out_len);
+    sm4_cbc_enc(key,iv,msg,msg_len,out,&out_len);
 
     memory_dump(out,out_len);
     return 0;

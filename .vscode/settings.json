@@ -24,6 +24,8 @@
         "icmp.h": "c",
         "malloc.h": "c",
         "esp.h": "c",
-        "openssl_sm4.h": "c"
+        "openssl_sm4.h": "c",
+        "sm3.h": "c",
+        "hmac_sm3.h": "c"
     }
 }

@@ -1,3 +1,4 @@
+/* ESP协议实现，未加密的ESP数据包 */
 #ifndef _ESP_H
 #define _ESP_H
 
@@ -42,6 +43,15 @@ void esp_get_icv(esp_t *esp, uint8_t *icv);
 uint16_t esp_get_packet_len(esp_t *esp);
 
 void esp_get_packet_bytes(esp_t *esp, uint8_t *packet_bytes);
+
+/**
+ * @brief 获取需加密部分的数据长度
+ */
+uint16_t esp_get_enc_data_len(esp_t *esp);
+/**
+ * @brief 获取需加密部分的数据
+ */
+void esp_get_enc_data(esp_t *esp, uint8_t *enc_data);
 
 esp_t *esp_clone(esp_t *esp);
 

@@ -2,7 +2,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <linux/ip.h>
 #include <arpa/inet.h>
 
 struct esp_t
@@ -201,7 +200,7 @@ void esp_get_packet_bytes(esp_t *esp, uint8_t *packet_bytes)
     }
 }
 /**
- * @brief 获取加密部分的数据长度
+ * @brief 获取需加密部分的数据长度
  *
  * @param esp
  * @return uint16_t
@@ -211,7 +210,7 @@ uint16_t esp_get_enc_data_len(esp_t *esp)
     return esp->payload_len + esp->pad_len + 2;
 }
 /**
- * @brief 获取加密部分的数据
+ * @brief 获取需加密部分的数据
  *
  * @param esp
  * @return uint16_t
@@ -261,4 +260,5 @@ void esp_destroy(esp_t *esp)
         esp->icv = NULL;
     }
     free(esp);
+    esp = NULL;
 }
