@@ -6,4 +6,6 @@
 !\.vscode
 !\.vscode/*.json
 !ah
+!esp
+!sm4
 !icmp

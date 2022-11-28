@@ -54,6 +54,7 @@ void ah_transport_sm3(ip_packet_t *ip_packet, uint8_t *key, int key_len, uint8_t
     sm3_hmac(buf, len, key, key_len, auth_data);
     printf("hmac-sm3:\n");
     memory_dump(auth_data, 32);
+    ah_packet_destory(clone);
 }
 
 int main(int argc, char **argv)
