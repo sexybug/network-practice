@@ -47,7 +47,7 @@ ip_packet_t *ip_packet_create_from_bytes(const uint8_t *packet_bytes, uint16_t t
     ip_packet->iph = (iphdr *)malloc(iph_len);
     memcpy(ip_packet->iph, iph, iph_len);
 
-    ip_packet->data_len = total_len - iph_len;
+    ip_packet->data_len = ntohs(ip_packet->iph->tot_len) - iph_len;
     ip_packet->data = (uint8_t *)malloc(ip_packet->data_len);
     memcpy(ip_packet->data, packet_bytes + iph_len, ip_packet->data_len);
 
@@ -140,6 +140,11 @@ uint16_t ip_packet_get_iph_len(ip_packet_t *ip_packet)
 uint8_t ip_packet_get_protocol(ip_packet_t *ip_packet)
 {
     return ip_packet->iph->protocol;
+}
+
+uint16_t ip_packet_get_id(ip_packet_t *ip_packet)
+{
+    return ntohs(ip_packet->iph->id);
 }
 
 char *ip_packet_get_saddr(ip_packet_t *ip_packet)

@@ -35,6 +35,7 @@ void ip_packet_set_data(ip_packet_t *ip_packet, const uint8_t *data, uint16_t da
 /* 获取IP头长度，单位：字节 */
 uint16_t ip_packet_get_iph_len(ip_packet_t *ip_packet);
 uint8_t ip_packet_get_protocol(ip_packet_t *ip_packet);
+uint16_t ip_packet_get_id(ip_packet_t *ip_packet);
 char *ip_packet_get_saddr(ip_packet_t *ip_packet);
 char *ip_packet_get_daddr(ip_packet_t *ip_packet);
 /* 获取数据部分长度 */

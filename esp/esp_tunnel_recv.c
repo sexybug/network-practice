@@ -95,22 +95,29 @@ int main()
         uint8_t new_icv[32];
         sm3_hmac(auth_data, auth_data_len, key, key_len, new_icv);
         //比较完整性校验值
-        int flag=1;
-        for(int i=0;i<icv_len;++i){
-            if(icv[i]!=new_icv[i])
-            {
-                flag=0;
-                break;
-            }
-        }
-        printf("icv check result:%d\n",flag);
+        printf("icv check result:%d\n", memcmp(new_icv, icv, icv_len));
 
         //解密
         uint8_t plain_data[data_len];
-        int plain_data_len=0;
-        sm4_cbc_dec(key,iv,data,data_len,plain_data,&plain_data_len);
+        int plain_data_len = 0;
+        sm4_cbc_dec(key, iv, data, data_len, plain_data, &plain_data_len);
         printf("plain_data:\n");
-        memory_dump(plain_data,plain_data_len);
+        memory_dump(plain_data, plain_data_len);
+
+        //解析内层IP包
+        ip_packet_t *inner_ip = ip_packet_create_from_bytes(plain_data, plain_data_len);
+        printf("\ninner_ip_packet:\n");
+        printf("source ip: %s\n", ip_packet_get_saddr(inner_ip));
+        printf("destination ip: %s\n", ip_packet_get_daddr(inner_ip));
+        printf("protocol: %d\n", ip_packet_get_protocol(inner_ip));
+        printf("total len: %d\n", ip_packet_get_packet_len(inner_ip));
+        printf("header len: %d\n", ip_packet_get_iph_len(inner_ip));
+
+        int inner_data_len = ip_packet_get_data_len(inner_ip);
+        uint8_t inner_data[inner_data_len];
+        ip_packet_get_data(inner_ip, inner_data);
+        printf("inner ip data:(len:%d)\n", inner_data_len);
+        memory_dump(inner_data, inner_data_len);
 
         ++i;
     }
