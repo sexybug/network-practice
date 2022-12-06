@@ -27,5 +27,6 @@
         "openssl_sm4.h": "c",
         "sm3.h": "c",
         "hmac_sm3.h": "c"
+        "socket.h": "c"
     }
 }
