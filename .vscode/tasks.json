@@ -172,7 +172,7 @@
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
-                "${file}","${workspaceFolder}/ip/ip_packet.c","ah_packet.c",
+                "${file}","${workspaceFolder}/ip/ip_packet.c","${workspaceFolder}/ah/ah_packet.c",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}"
             ],
@@ -190,7 +190,7 @@
         },
         {
             "type": "cppbuild",
-            "label": "test ah_transport_sm3",
+            "label": "test ah_transport_sm3 & ah_tunnel_sm3",
             "command": "/usr/bin/gcc",
             "args": [
                 "-fdiagnostics-color=always",

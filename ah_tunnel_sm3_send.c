@@ -62,7 +62,7 @@ int main(int argc, char **argv)
     {
 
         const char *src_ip = "192.168.206.131";
-        const char *dst_ip = "192.168.206.132";
+        const char *dst_ip = "192.168.40.129";
 
         /* 创建原IP包 */
         ip_packet_t *origin_ip_packet = ip_packet_create();

@@ -50,6 +50,9 @@ void ip_packet_get_packet_bytes(ip_packet_t *ip_packet, uint8_t *packet_bytes);
 /* clone整个IP包，包括IP头和数据部分 */
 ip_packet_t *ip_packet_clone(ip_packet_t *ip_packet);
 
+/* 发送，自动分段和计算分段校验和 */
+int ip_packet_send(ip_packet_t *ip_packet);
+
 /* 调用create,create_from,clone方法创建的对象，必须用destory销毁 */
 void ip_packet_destory(ip_packet_t *ip_packet);
 

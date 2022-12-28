@@ -4,31 +4,32 @@
 #include <stdbool.h>
 #include <errno.h>
 #include <string.h>
-#include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <linux/ip.h> /* superset of previous */
-#include <arpa/inet.h>  /* inet_addr,inet_aton */
+#include <linux/ip.h>  /* superset of previous */
+#include <arpa/inet.h> /* inet_addr,inet_aton */
 
 /* 网卡接口默认MTU=1500 */
-const int BUFFER_SIZE = 1500;
+const int BUFFER_SIZE = 3000;
 /* 无可选字段的IP头长度为20byte */
 const int IP_HDR_LEN = 20;
 
 int main()
 {
-    const char *src_ip = "192.168.206.131";
-    const char *dst_ip = "192.168.206.132";
-    /**
-     * @brief 创建IPv4套接字
-     * IPPROTO_RAW：可发送任意类型数据包。并设置了IP_HDRINCL，因此需手动创建IP头。
-     */
+    const char *src_ip = "192.168.40.128";
+    const char *dst_ip = "192.168.40.129";
+
     int send_socket = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
     if (send_socket == -1)
     {
         perror("socket");
         return -1;
     }
+
+    struct sockaddr_in send_addr;
+    memset(&send_addr, 0, sizeof(struct sockaddr_in));
+    send_addr.sin_family = AF_INET;
+    send_addr.sin_addr.s_addr = inet_addr(dst_ip);
 
     unsigned char buffer[BUFFER_SIZE];
     int i = 1;
@@ -41,7 +42,7 @@ int main()
         /* <netinet/ip.h> 中定义的IPv4版本号：4 */
         ip.version = IPVERSION;
         /* ip头长度，单位：4字节。一般为5*4=20字节 */
-        ip.ihl = IP_HDR_LEN/4;
+        ip.ihl = IP_HDR_LEN / 4;
         /* 服务类型。<netinet/ip.h>中定义了服务类型宏，为0表示一般类型 */
         ip.tos = 0x00;
         /* ip数据包总长度，以字节为单位，最大为IP_MAXPACKET = 65535 */
@@ -67,22 +68,12 @@ int main()
         /* 设置数据部分 */
         for (int k = IP_HDR_LEN; k < BUFFER_SIZE; ++k)
         {
-            buffer[k] = 'a';
+            buffer[k] = '0' + k % 10;
         }
 
-        struct sockaddr_in send_addr;
-        memset(&send_addr, 0, sizeof(struct sockaddr_in));
-        send_addr.sin_family = AF_INET;
-        send_addr.sin_addr.s_addr = inet_addr(dst_ip);
         /* 发送 */
-        /* 如果此处目的ip与包的目的ip不一样，也可发送出去，且目的ip仍为包中设定的目的ip。此处的目的ip没有作用，但不可缺少 */
-        int n = sendto(send_socket, buffer, BUFFER_SIZE, 0, (struct sockaddr *)&send_addr, sizeof(struct sockaddr_in));
-        if (n < 0)
-        {
-            fprintf(stderr, "sendto error: %s\n", strerror(errno));
-            return -1;
-        }
-        printf("send %d bytes\n", n);
+        int send_bytes = 0;
+
         ++i;
         /* 睡眠一秒 */
         sleep(1);

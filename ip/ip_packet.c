@@ -4,6 +4,22 @@
 #include <string.h>
 #include <linux/ip.h>
 #include <arpa/inet.h>
+#include <sys/socket.h>
+#include <errno.h>
+#include <stdio.h>
+
+void memory_dump(void *ptr, int len)
+{
+    for (int i = 0; i < len; ++i)
+    {
+        if (i % 8 == 0 && i != 0)
+            printf(" ");
+        if (i % 16 == 0 && i != 0)
+            printf("\n");
+        printf("%02x ", *((uint8_t *)ptr + i));
+    }
+    printf("\n");
+}
 
 typedef struct iphdr iphdr;
 struct ip_packet_t
@@ -188,6 +204,65 @@ ip_packet_t *ip_packet_clone(ip_packet_t *ip_packet)
     memcpy(clone->data, ip_packet->data, ip_packet->data_len);
     clone->data_len = ip_packet->data_len;
     return clone;
+}
+
+int ip_packet_send(ip_packet_t *ip_packet)
+{
+    int send_socket = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
+    if (send_socket == -1)
+    {
+        perror("socket");
+        return -1;
+    }
+
+    struct sockaddr_in send_addr;
+    memset(&send_addr, 0, sizeof(struct sockaddr_in));
+    send_addr.sin_family = AF_INET;
+    send_addr.sin_addr.s_addr = ip_packet->iph->daddr;
+
+    const int mtu = 1500;
+    int iph_len = ip_packet_get_iph_len(ip_packet);
+    int data_window = mtu - iph_len;
+    uint8_t buffer[mtu];
+    // 已发送数据部分总长度
+    int send_data_len = 0;
+    // 分段数据长度
+    int n;
+    // 分段头部
+    iphdr hdr;
+    while (send_data_len < ip_packet->data_len)
+    {
+        // 初始化分段头部
+        memcpy(&hdr, ip_packet->iph, iph_len);
+
+        if ((ip_packet->data_len - send_data_len) >= data_window)
+        {
+            n = data_window;
+            hdr.frag_off = htons(0x2000 | (send_data_len >> 3));
+        }
+        else
+        {
+            n = ip_packet->data_len - send_data_len;
+            hdr.frag_off = htons(send_data_len >> 3);
+        }
+        // 修改分段头部
+        hdr.tot_len = htons(iph_len + n);
+        hdr.check = htons(ip_checksum(&hdr));
+
+        memcpy(buffer, &hdr, iph_len);
+        memcpy(buffer + iph_len, ip_packet->data + send_data_len, n);
+
+        memory_dump(buffer, iph_len + n);
+
+        int r = sendto(send_socket, buffer, iph_len + n, 0, (struct sockaddr *)&send_addr, sizeof(struct sockaddr_in));
+        if (r < 0)
+        {
+            fprintf(stderr, "ip_packet_send error: %s\n", strerror(errno));
+            return -1;
+        }
+        printf("send %d bytes data\n", r);
+        send_data_len += n;
+    }
 }
 
 void ip_packet_destory(ip_packet_t *ip_packet)

@@ -54,7 +54,8 @@ void ah_transport_sm3(ip_packet_t *ip_packet, uint8_t *key, int key_len, uint8_t
     sm3_hmac(buf, len, key, key_len, auth_data);
     printf("hmac-sm3:\n");
     memory_dump(auth_data, 32);
-    ah_packet_destory(clone);
+    ah_packet_destory(ah_packet);
+    ip_packet_destory(clone);
 }
 
 int main(int argc, char **argv)
@@ -63,7 +64,7 @@ int main(int argc, char **argv)
     {
 
         const char *src_ip = "192.168.206.131";
-        const char *dst_ip = "192.168.206.132";
+        const char *dst_ip = "192.168.40.129";
 
         ah_packet_t *ah_packet = ah_packet_create(32);
         ah_packet_set_nexthdr(ah_packet, IPPROTO_ICMP);
