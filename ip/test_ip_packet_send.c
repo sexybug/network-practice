@@ -23,6 +23,7 @@ int main(int argc, char **argv)
         ip_packet_set_saddr(ip_packet, src_ip);
         ip_packet_set_daddr(ip_packet, dst_ip);
         ip_packet_set_protocol(ip_packet, IPPROTO_ICMP);
+        //必须指定id，用于确定分段
         ip_packet_set_id(ip_packet,0x0102);
 
         uint8_t data[1500];

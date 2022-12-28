@@ -252,7 +252,7 @@ int ip_packet_send(ip_packet_t *ip_packet)
         memcpy(buffer, &hdr, iph_len);
         memcpy(buffer + iph_len, ip_packet->data + send_data_len, n);
 
-        memory_dump(buffer, iph_len + n);
+        //memory_dump(buffer, iph_len + n);
 
         int r = sendto(send_socket, buffer, iph_len + n, 0, (struct sockaddr *)&send_addr, sizeof(struct sockaddr_in));
         if (r < 0)
@@ -260,7 +260,7 @@ int ip_packet_send(ip_packet_t *ip_packet)
             fprintf(stderr, "ip_packet_send error: %s\n", strerror(errno));
             return -1;
         }
-        printf("send %d bytes data\n", r);
+        //printf("send %d bytes data\n", r);
         send_data_len += n;
     }
 }

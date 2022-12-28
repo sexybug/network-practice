@@ -32,7 +32,7 @@ int main()
     while (true)
     {
         printf("i: %d\n", i);
-
+        //此处接收到的是重组后的IP包
         int n = recvfrom(recv_socket, buffer, BUFFER_SIZE, 0, (struct sockaddr *)&recv_addr, &recv_addr_len);
         if (n < 0)
         {
