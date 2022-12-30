@@ -88,23 +88,23 @@ int main()
         uint8_t key[] = "1234567812345678";
         int key_len = 16;
         uint8_t iv[] = "1234567812345678";
-        //计算完整性校验值
+        // 计算完整性校验值
         int auth_data_len = esp_packet_get_auth_data_len(esp);
         uint8_t auth_data[auth_data_len];
         esp_packet_get_auth_data(esp, auth_data);
         uint8_t new_icv[32];
         sm3_hmac(auth_data, auth_data_len, key, key_len, new_icv);
-        //比较完整性校验值
+        // 比较完整性校验值
         printf("icv check result:%d\n", memcmp(new_icv, icv, icv_len));
 
-        //解密
+        // 解密
         uint8_t plain_data[data_len];
         int plain_data_len = 0;
         sm4_cbc_dec(key, iv, data, data_len, plain_data, &plain_data_len);
         printf("plain_data:\n");
         memory_dump(plain_data, plain_data_len);
 
-        //解析内层IP包
+        // 解析内层IP包
         ip_packet_t *inner_ip = ip_packet_create_from_bytes(plain_data, plain_data_len);
         printf("\ninner_ip_packet:\n");
         printf("source ip: %s\n", ip_packet_get_saddr(inner_ip));

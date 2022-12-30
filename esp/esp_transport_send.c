@@ -44,12 +44,12 @@ int main(int argc, char **argv)
         uint8_t iv[] = "1234567812345678";
         uint8_t plain_data[] = "dat1dat2dat3dat4";
         int data_len = 16;
-        //加密
+        // 加密
         uint8_t cipher_data[1024];
         int out_len = 0;
         sm4_cbc_enc(key, iv, plain_data, data_len, cipher_data, &out_len);
         esp_packet_set_data(esp, cipher_data, data_len);
-        //完整性校验值
+        // 完整性校验值
         int auth_data_len = esp_packet_get_auth_data_len(esp);
         uint8_t auth_data[auth_data_len];
         esp_packet_get_auth_data(esp, auth_data);
@@ -60,7 +60,7 @@ int main(int argc, char **argv)
         size_t esp_len = esp_packet_get_packet_len(esp);
         uint8_t esp_buffer[esp_len];
         esp_packet_get_packet_bytes(esp, esp_buffer);
-        //创建IP包
+        // 创建IP包
         ip_packet_t *ip_packet = ip_packet_create();
         ip_packet_set_saddr(ip_packet, src_ip);
         ip_packet_set_daddr(ip_packet, dst_ip);
